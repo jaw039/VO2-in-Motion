@@ -4,8 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VO2 In Motion</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="./main.js" type="module" defer></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
+    <h1>How Does The Speed of Treadmill Affect Average Oxygen Consumption For Males and Females?</h1>
+    <svg id="line-graph"></svg>
+    <div id="buttonsSex">
+        <button id="maleButton" class="filter-button">Male</button>
+        <button id="femaleButton" class="filter-button">Female</button>
+        <button id="bothButton" class="filter-button">Both</button>
+    </div>
+    <div id="buttonsSpeed">
+        <button data-speed="5" class="filter-button">5</button>
+        <button data-speed="6" class="filter-button">6</button>
+        <button data-speed="7" class="filter-button">7</button>
+        <button data-speed="8" class="filter-button">8</button>
+        <button data-speed="9" class="filter-button">9</button>
+    </div>
     
 </body>
 </html>
