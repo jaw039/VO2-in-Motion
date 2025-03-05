@@ -76,207 +76,142 @@ function buildChart() {
   const marginLeft = 60;
 
   const svg = d3.select('#line-graph')
-  .attr("width", width)
-  .attr("height", height)
-  .attr("viewBox", [0, 0, width, height])
-  .attr("style", "max-width: 100%; height: auto; -webkit-tap-highlight-color: transparent;");
+    .attr("width", width)
+    .attr("height", height)
+    .attr("viewBox", [0, 0, width, height])
+    .attr("style", "max-width: 100%; height: auto; -webkit-tap-highlight-color: transparent;");
 
-  // Added X label
-  svg.append('text')
-    .attr('x', (width - marginLeft - marginRight) / 2 + marginLeft) // Center of the x-axis
-    .attr('y', height ) // Slightly below the x-axis
-    .attr('text-anchor', 'middle') // Center align the text
-    .attr('font-size', '14px')
-    .attr('fill', 'black')
-    .text('Time (seconds)'); // Replace with your label
-
-  // Added Y label
-  svg.append('text')
-    .attr('x', -(height - marginTop - marginBottom) / 2 - marginTop) // Center of the y-axis (rotated)
-    .attr('y', 11) // Slightly to the left of the y-axis
-    .attr('transform', 'rotate(-90)') // Rotate the text to be vertical
-    .attr('text-anchor', 'middle') // Center align the text
-    .attr('font-size', '14px')
-    .attr('fill', 'black')
-    .text('VO2 (mL/kg/min)'); // Replace with your label
-  
-  // Adding X and Y axis
+  // Define scales
   const xScale = d3.scaleLinear()
-      .domain([d3.min(filteredData, d => d.time), d3.max(filteredData, d => d.time)])
-      .range([marginLeft, width - marginRight]);
-      
+    .domain([d3.min(filteredData, d => d.time), d3.max(filteredData, d => d.time)])
+    .range([marginLeft, width - marginRight]);
+
   const yScale = d3.scaleLinear()
-      .domain([0, d3.max(filteredData, d => d.VO2) * 1.1]) // Add 10% padding at the top
-      .range([height - marginBottom, marginTop]); // Note: y is inverted in SVG
-      
+    .domain([0, d3.max(filteredData, d => d.VO2) * 1.1]) // Add 10% padding at the top
+    .range([height - marginBottom, marginTop]); // Note: y is inverted in SVG
+
+  // Adding X and Y axis
   const xAxis = d3.axisBottom(xScale);
   const yAxis = d3.axisLeft(yScale);
-    
+
   svg.append('g')
     .attr('transform', `translate(0, ${height - marginBottom})`)
     .call(xAxis);
-    
+
   svg.append('g')
     .attr('transform', `translate(${marginLeft}, 0)`)
     .call(yAxis);
-  
-  if (showAverage) {
-    // Group data by sex
-    const groups = d3.group(filteredData, d => d.Sex);
-    
-    groups.forEach((groupData, groupKey) => {
-      // If speed is selected, further group by speed and only show the selected speed
-      if (selectedSpeed !== null) {
-        const speedData = groupData.filter(d => d.Speed === selectedSpeed);
-        if (speedData.length > 0) {
-          // Calculate averages for this sex and speed group
-          const averageData = calculateAveragesByTime(speedData);
-          
-          // Create line with averages
-          const line = d3.line()
-            .x(d => xScale(d.time))
-            .y(d => yScale(d.VO2));
 
-          svg.append('path')
-            .datum(averageData)
-            .attr('fill', 'none')
-            .attr('stroke', groupKey === '0' ? 'blue' : 'pink') // '0' for Male (blue), '1' for Female (pink)
-            .attr('stroke-width', 2.5) // Make average lines thicker
-            .attr('d', line);
-            
-          // Add a label for the line - using a better position method
-          // Get the second-to-last data point instead of the last one
-          const labelPoint = averageData[Math.max(0, averageData.length - 10)]; // 10 points from the end
-          
-          // First create a white background for the text for better contrast
-          svg.append('rect')
-            .attr('x', xScale(labelPoint.time) - 35) // Make rectangle wider than the text
-            .attr('y', yScale(labelPoint.VO2) - 22) // Position above the text
-            .attr('width', 70) // Width of the background
-            .attr('height', 18) // Height of the background
-            .attr('fill', 'white') // White background
-            .attr('stroke', groupKey === '0' ? 'blue' : 'pink') // Border color matching the line
-            .attr('stroke-width', 1)
-            .attr('rx', 4) // Rounded corners
-            .attr('ry', 4);
-          
-          svg.append('text')
-            .attr('x', xScale(labelPoint.time))
-            .attr('y', yScale(labelPoint.VO2) - 10) // Position above the line
-            .attr('font-size', '12px')
-            .attr('font-weight', 'bold') // Make text bold
-            .attr('fill', 'black') // Black text
-            .attr('text-anchor', 'middle')
-            .text(groupKey === '0' ? 'Male Avg' : 'Female Avg');
-        }
-      } else {
-        // No speed selected, calculate averages across all speeds
-        const averageData = calculateAveragesByTime(groupData);
-        
-        // Create line with averages
-        const line = d3.line()
-          .x(d => xScale(d.time))
-          .y(d => yScale(d.VO2));
-
-        svg.append('path')
-          .datum(averageData)
-          .attr('fill', 'none')
-          .attr('stroke', groupKey === '0' ? 'blue' : 'pink') // '0' for Male (blue), '1' for Female (pink)
-          .attr('stroke-width', 2.5) // Make average lines thicker
-          .attr('d', line);
-          
-        // Add a label for the line - using a better position
-        // Get a point near the end but not the very end
-        const labelPoint = averageData[Math.max(0, averageData.length - 10)]; // 10 points from the end
-        
-        // First create a white background for the text for better contrast
-        svg.append('rect')
-          .attr('x', xScale(labelPoint.time) - 35) // Make rectangle wider than the text
-          .attr('y', yScale(labelPoint.VO2) - 22) // Position above the text
-          .attr('width', 70) // Width of the background
-          .attr('height', 18) // Height of the background
-          .attr('fill', 'white') // White background
-          .attr('stroke', groupKey === '0' ? 'blue' : 'pink') // Border color matching the line
-          .attr('stroke-width', 1)
-          .attr('rx', 4) // Rounded corners
-          .attr('ry', 4);
-        
-        svg.append('text')
-          .attr('x', xScale(labelPoint.time))
-          .attr('y', yScale(labelPoint.VO2) - 10) // Position above the line
-          .attr('font-size', '12px')
-          .attr('font-weight', 'bold') // Make text bold
-          .attr('fill', 'black') // Black text
-          .attr('text-anchor', 'middle')
-          .text(groupKey === '0' ? 'Male Avg' : 'Female Avg');
-      }
-    });
-  } else {
-    // This section would show individual lines, but we're skipping it by default
-    const groups = d3.group(filteredData, d => d.Sex);
-    groups.forEach((groupData, groupKey) => {
-      const line = d3.line()
-        .x(d => xScale(d.time))
-        .y(d => yScale(d.VO2));
-
-      svg.append('path')
-        .datum(groupData)
-        .attr('fill', 'none')
-        .attr('stroke', groupKey === '0' ? 'blue' : 'pink') // '0' for Male (blue), '1' for Female (pink)
-        .attr('stroke-width', 1.5)
-        .attr('d', line);
-    });
-  }
-  
-  // Add title showing current filter
-  let titleText = `VO2 Consumption - ${selectedSex === '0' ? 'Male' : selectedSex === '1' ? 'Female' : 'All Subjects'}`;
-  if (selectedSpeed !== null) {
-    titleText += ` at Speed ${selectedSpeed}`;
-  }
-  
+  // Add labels
   svg.append('text')
     .attr('x', width / 2)
-    .attr('y', marginTop)
+    .attr('y', height)
     .attr('text-anchor', 'middle')
-    .attr('font-size', '16px')
-    .attr('font-weight', 'bold')
-    .text(titleText);
+    .attr('font-size', '14px')
+    .attr('fill', 'black')
+    .text('Time (seconds)');
+
+  svg.append('text')
+    .attr('x', -height / 2)
+    .attr('y', 15)
+    .attr('transform', 'rotate(-90)')
+    .attr('text-anchor', 'middle')
+    .attr('font-size', '14px')
+    .attr('fill', 'black')
+    .text('VO2 (mL/kg/min)');
+
+  // Draw lines based on groupings (if any)
+  processAndDisplayGroups(svg, xScale, yScale, width, marginRight, marginTop);
+
+  // Define and append the brush
+  const brush = d3.brushX()
+    .extent([[marginLeft, marginTop], [width - marginRight, height - marginBottom]])
+    .on("end", brushed);  // 'end' event is used in D3 v6 and above
+
+  svg.append("g")
+    .attr("class", "brush")
+    .call(brush);
+
+    function brushed(event) {
+      const selection = event.selection;
+      if (selection) {
+          const [x0, x1] = selection.map(xScale.invert);
+          const filtered = filteredData.filter(d => d.time >= x0 && d.time <= x1);
+          const averageVO2 = d3.mean(filtered, d => d.VO2);
   
-  // Add legend
-  const legend = svg.append('g')
-    .attr('transform', `translate(${width - marginRight - 100}, ${marginTop + 20})`);
-    
-  if (filteredData.some(d => d.Sex === '0')) {
-    legend.append('line')
-      .attr('x1', 0)
-      .attr('y1', 0)
-      .attr('x2', 20)
-      .attr('y2', 0)
-      .attr('stroke', 'blue')
-      .attr('stroke-width', 2.5);
-      
-    legend.append('text')
-      .attr('x', 25)
-      .attr('y', 5)
-      .text('Male')
-      .attr('font-size', '12px');
+          // Update the average VO2 display
+          if (!isNaN(averageVO2)) {
+              document.getElementById('average-vo2-value').textContent = averageVO2.toFixed(2);
+          } else {
+              document.getElementById('average-vo2-value').textContent = "N/A"; // No selection or no data in selection
+          }
+      } else {
+          // If no selection, show N/A or reset
+          document.getElementById('average-vo2-value').textContent = "N/A";
+      }
   }
-  
-  if (filteredData.some(d => d.Sex === '1')) {
-    legend.append('line')
-      .attr('x1', 0)
-      .attr('y1', 20)
-      .attr('x2', 20)
-      .attr('y2', 20)
-      .attr('stroke', 'pink')
-      .attr('stroke-width', 2.5);
-      
-    legend.append('text')
-      .attr('x', 25)
-      .attr('y', 25)
-      .text('Female')
-      .attr('font-size', '12px');
-  }
+}
+
+function processAndDisplayGroups(svg, xScale, yScale, width, marginRight, marginTop) {
+  // Remove previous legends to ensure they're updated correctly
+  svg.selectAll(".legend").remove();
+
+  // Set up the legend, initializing it outside the groups forEach loop
+  const legend = svg.append("g")
+      .attr("class", "legend")
+      .attr("transform", `translate(${width - marginRight - 150}, ${marginTop})`);
+
+  // Depending on the data, set up the line and manage the legend entries
+  const groups = d3.group(filteredData, d => d.Sex);
+  let yOffset = 0; // This will help in positioning legend items vertically
+
+  groups.forEach((groupData, groupKey) => {
+      // Check if there's any data to show for this group
+      if (groupData.length > 0) {
+          if (selectedSpeed !== null) {
+              groupData = groupData.filter(d => d.Speed === selectedSpeed);
+          }
+
+          const dataToDisplay = showAverage ? calculateAveragesByTime(groupData) : groupData;
+          const line = d3.line()
+              .x(d => xScale(d.time))
+              .y(d => yScale(d.VO2));
+
+          // Draw line for the group
+          svg.append('path')
+              .datum(dataToDisplay)
+              .attr('fill', 'none')
+              .attr('stroke', groupKey === '0' ? 'blue' : 'pink')
+              .attr('stroke-width', 2.5)
+              .attr('d', line);
+
+          // Update legend with relevant data
+          updateLegend(legend, groupKey, 0, yOffset);
+          yOffset += 24; // Increment yOffset for the next legend item
+      }
+  });
+}
+
+function updateLegend(legend, groupKey, xOffset, yOffset) {
+  const color = groupKey === '0' ? 'blue' : 'pink'; // Assign color based on group
+  const textLabel = groupKey === '0' ? 'Male' : 'Female'; // Label based on group
+
+  // Add colored rectangle for the legend
+  legend.append("rect")
+      .attr("x", xOffset)
+      .attr("y", yOffset)
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", color);
+
+  // Add text label next to the rectangle
+  legend.append("text")
+      .attr("x", xOffset + 24)
+      .attr("y", yOffset + 14)
+      .text(textLabel)
+      .style("font-size", "12px")
+      .style("text-anchor", "start")
+      .style("alignment-baseline", "middle");
 }
 
 // Combines filtering by Speed and Sex
@@ -609,3 +544,4 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   
   });
+

@@ -170,3 +170,19 @@ svg {
     transition: all 0.5s ease;
     display: inline-block;
 }
+
+/* This is for the Chart */
+#average-display {
+    width: 300px; /* Set a medium width for the display box */
+    padding: 10px;
+    margin: 10px auto; /* Centers the box horizontally below the SVG */
+    background-color: #f9f9f9; /* Light grey background */
+    border: 1px solid #ccc; /* Subtle border */
+    border-radius: 5px; /* Rounded corners for a smoother look */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Soft shadow for depth */
+    font-size: 16px; /* Adequate font size for readability */
+}
+
+
+
+
