@@ -288,6 +288,7 @@ function applyCombinedFilter(sex) {
     return matchesSpeed && matchesSex;
   });
   buildChart(); // Rebuild chart with combined filters
+  updateRunnerAnimation();
 }
 
 // Adds event listeners to speed filter buttons
@@ -390,89 +391,212 @@ document.addEventListener('DOMContentLoaded', async () => {
   function updateRunnerAnimation() {
     runnerMan.classList.remove('running-slow', 'running-medium', 'running-fast', 'running-max');
     runnerWoman.classList.remove('running-slow', 'running-medium', 'running-fast', 'running-max');
-
-    heartMan.classList.remove('beating', 'heart-size-5', 'heart-size-6', 'heart-size-7', 'heart-size-8', 'heart-size-9');
-    heartWoman.classList.remove('beating', 'heart-size-5', 'heart-size-6', 'heart-size-7', 'heart-size-8', 'heart-size-9');
-
+  
+    // Remove old heart classes - we'll control hearts with the new function
     heartContainerMan.style.display = "none";
     heartContainerWoman.style.display = "none";
-
+  
     if (selectedSex === '0' || selectedSex === 'Both') {
       heartContainerMan.style.display = "block";
-      heartMan.classList.add('beating', `heart-size-${selectedSpeed}`);
-  }
-
-  if (selectedSex === '1' || selectedSex === 'Both') {
+    }
+  
+    if (selectedSex === '1' || selectedSex === 'Both') {
       heartContainerWoman.style.display = "block";
-      heartWoman.classList.add('beating', `heart-size-${selectedSpeed}`);
-  }
-
-  if (selectedSex === '0' || selectedSex === 'Both') {
+    }
+  
+    if (selectedSex === '0' || selectedSex === 'Both') {
       if (selectedSpeed == 5) runnerMan.classList.add('running-slow');
       if (selectedSpeed == 6) runnerMan.classList.add('running-medium');
       if (selectedSpeed == 7) runnerMan.classList.add('running-fast');
       if (selectedSpeed >= 8) runnerMan.classList.add('running-max');
-  }
-
-  if (selectedSex === '1' || selectedSex === 'Both') {
+    }
+  
+    if (selectedSex === '1' || selectedSex === 'Both') {
       if (selectedSpeed == 5) runnerWoman.classList.add('running-slow');
       if (selectedSpeed == 6) runnerWoman.classList.add('running-medium');
       if (selectedSpeed == 7) runnerWoman.classList.add('running-fast');
       if (selectedSpeed >= 8) runnerWoman.classList.add('running-max');
+    }
+    
+    // Now call the new heart visualization function
+    updateHeartVisualization();
   }
-}
+  
+  function updateHeartVisualization() {
+    // Skip if no speed is selected
+    if (!selectedSpeed) return;
+    
+    // Get heart elements
+    const maleHeart = document.getElementById('heart-m');
+    const femaleHeart = document.getElementById('heart-f');
+    
+    if (selectedSex === '0' || selectedSex === 'Both') {
+      // Update male heart if visible
+      if (maleHeart) {
+        // Get gradient elements
+        const maleGradient = document.querySelector('#oxygen-gradient-m');
+        
+        // Calculate color intensity based on speed
+        const colorIntensity = Math.min(100, selectedSpeed * 10);
+        
+        // Define color values - higher speed = more oxygen consumption = darker red
+        const startColor = `rgb(255, ${Math.max(0, 155 - colorIntensity)}, ${Math.max(0, 155 - colorIntensity)})`;
+        const endColor = `rgb(180, ${Math.max(0, 55 - colorIntensity/2)}, ${Math.max(0, 55 - colorIntensity/2)})`;
+        
+        // Update colors
+        maleGradient.querySelector('stop:first-child').setAttribute('stop-color', startColor);
+        maleGradient.querySelector('stop:last-child').setAttribute('stop-color', endColor);
+        
+        // Update oxygen particle speed - faster at higher speeds
+        const particleSpeed = Math.max(1, 4 - (selectedSpeed - 5) * 0.5); 
+        maleHeart.querySelectorAll('.oxygen-particle animateMotion').forEach(anim => {
+          anim.setAttribute('dur', `${particleSpeed}s`);
+        });
+        
+        // Update heart size based on speed
+        maleHeart.setAttribute('width', 40 + (selectedSpeed - 5) * 5);
+        maleHeart.setAttribute('height', 40 + (selectedSpeed - 5) * 5);
+        
+        // Apply heartbeat animation with speed-appropriate timing
+        const beatDuration = Math.max(0.5, 1.2 - (selectedSpeed - 5) * 0.15);
+        maleHeart.style.animation = `heartbeat ${beatDuration}s infinite ease-in-out`;
+        
+        // Make particles more intense at high speeds
+        maleHeart.querySelectorAll('.oxygen-particle').forEach(particle => {
+          if (selectedSpeed >= 8) {
+            particle.setAttribute('opacity', '0.9');
+            particle.setAttribute('r', '2.5');
+          } else {
+            particle.setAttribute('opacity', '0.7');
+            particle.setAttribute('r', '2');
+          }
+        });
+      }
+    }
+    
+    if (selectedSex === '1' || selectedSex === 'Both') {
+      // Update female heart with similar logic
+      if (femaleHeart) {
+        const femaleGradient = document.querySelector('#oxygen-gradient-f');
+        
+        const colorIntensity = Math.min(100, selectedSpeed * 10);
+        const startColor = `rgb(255, ${Math.max(0, 155 - colorIntensity)}, ${Math.max(0, 155 - colorIntensity)})`;
+        const endColor = `rgb(180, ${Math.max(0, 55 - colorIntensity/2)}, ${Math.max(0, 55 - colorIntensity/2)})`;
+        
+        femaleGradient.querySelector('stop:first-child').setAttribute('stop-color', startColor);
+        femaleGradient.querySelector('stop:last-child').setAttribute('stop-color', endColor);
+        
+        // Slightly different timing for female heart to create visual variation
+        const particleSpeed = Math.max(1, 4.2 - (selectedSpeed - 5) * 0.5);
+        femaleHeart.querySelectorAll('.oxygen-particle animateMotion').forEach(anim => {
+          anim.setAttribute('dur', `${particleSpeed}s`);
+        });
+        
+        femaleHeart.setAttribute('width', 40 + (selectedSpeed - 5) * 5);
+        femaleHeart.setAttribute('height', 40 + (selectedSpeed - 5) * 5);
+        
+        const beatDuration = Math.max(0.5, 1.3 - (selectedSpeed - 5) * 0.15);
+        femaleHeart.style.animation = `heartbeat ${beatDuration}s infinite ease-in-out`;
+        
+        femaleHeart.querySelectorAll('.oxygen-particle').forEach(particle => {
+          if (selectedSpeed >= 8) {
+            particle.setAttribute('opacity', '0.9');
+            particle.setAttribute('r', '2.5');
+          } else {
+            particle.setAttribute('opacity', '0.7');
+            particle.setAttribute('r', '2');
+          }
+        });
+      }
+    }
+  }
+  
+  // Filter Data & Update Graph
+  function applyCombinedFilter(sex) {
+      selectedSex = sex;
+      filteredData = data.filter(d => {
+          const matchesSpeed = selectedSpeed === null || d.Speed === selectedSpeed;
+          const matchesSex = sex === 'Both' || d.Sex === sex;
+          return matchesSpeed && matchesSex;
+      });
+      buildChart();
+      updateRunnerAnimation();
+  }
+  
+  // Speed Button Event Listeners
+  document.querySelectorAll('button[data-speed]').forEach(button => {
+      button.addEventListener('click', () => {
+          selectedSpeed = Number(button.getAttribute('data-speed'));
+          document.querySelectorAll('button[data-speed]').forEach(btn => btn.classList.remove('active'));
+          button.classList.add('active');
+          applyCombinedFilter(selectedSex);
+      });
+  });
+  
+  // Sex Button Event Listeners
+  document.getElementById('maleButton').addEventListener('click', () => {
+      selectedSex = '0';
+      document.getElementById('maleButton').classList.add('active');
+      document.getElementById('femaleButton').classList.remove('active');
+      document.getElementById('bothButton').classList.remove('active');
+      applyCombinedFilter(selectedSex);
+  });
+  
+  document.getElementById('femaleButton').addEventListener('click', () => {
+      selectedSex = '1';
+      document.getElementById('femaleButton').classList.add('active');
+      document.getElementById('maleButton').classList.remove('active');
+      document.getElementById('bothButton').classList.remove('active');
+      applyCombinedFilter(selectedSex);
+  });
+  
+  document.getElementById('bothButton').addEventListener('click', () => {
+      selectedSex = 'Both';
+      document.getElementById('bothButton').classList.add('active');
+      document.getElementById('maleButton').classList.remove('active');
+      document.getElementById('femaleButton').classList.remove('active');
+      applyCombinedFilter(selectedSex);
+  });
+  
+  // Load Data on Page Load
+  document.addEventListener('DOMContentLoaded', async () => {
+      await loadData();
+      updateRunnerAnimation();
+  });
+  
+  });
 
-// Filter Data & Update Graph
-function applyCombinedFilter(sex) {
-    selectedSex = sex;
-    filteredData = data.filter(d => {
-        const matchesSpeed = selectedSpeed === null || d.Speed === selectedSpeed;
-        const matchesSex = sex === 'Both' || d.Sex === sex;
-        return matchesSpeed && matchesSex;
+function updateHeartVisualization() {
+  // Remove all classes first
+  const maleHeart = document.getElementById('heart-m');
+  const femaleHeart = document.getElementById('heart-f');
+  
+  if (!selectedSpeed) return;
+  
+  // Update gradient colors based on speed
+  const maleGradient = document.getElementById('oxygen-gradient-m');
+  const femaleGradient = document.getElementById('oxygen-gradient-f');
+  
+  // Oxygen-rich blood is bright red, oxygen-poor is darker
+  // Higher speed = more rapid oxygen consumption
+  const colorIntensity = Math.min(100, selectedSpeed * 10);
+  
+  if (maleGradient && (selectedSex === '0' || selectedSex === 'Both')) {
+    const startColor = `rgb(255, ${155 - colorIntensity}, ${155 - colorIntensity})`;
+    const endColor = `rgb(180, ${55 - colorIntensity/2}, ${55 - colorIntensity/2})`;
+    
+    maleGradient.querySelector('stop:first-child').setAttribute('stop-color', startColor);
+    maleGradient.querySelector('stop:last-child').setAttribute('stop-color', endColor);
+    
+    // Update animation speed based on treadmill speed
+    const particleSpeed = 4 - (selectedSpeed - 5) * 0.5; // 3s at speed 5, faster at higher speeds
+    maleHeart.querySelectorAll('.oxygen-particle animateMotion').forEach(anim => {
+      anim.setAttribute('dur', `${particleSpeed}s`);
     });
-    buildChart();
-    updateRunnerAnimation();
+    
+    // Update heart beat animation
+    maleHeart.style.animation = `heartbeat ${1.2 - (selectedSpeed - 5) * 0.15}s infinite ease-in-out`;
+  }
+  
+  // Similar updates for female heart...
 }
-
-// Speed Button Event Listeners
-document.querySelectorAll('button[data-speed]').forEach(button => {
-    button.addEventListener('click', () => {
-        selectedSpeed = Number(button.getAttribute('data-speed'));
-        document.querySelectorAll('button[data-speed]').forEach(btn => btn.classList.remove('active'));
-        button.classList.add('active');
-        applyCombinedFilter(selectedSex);
-    });
-});
-
-// Sex Button Event Listeners
-document.getElementById('maleButton').addEventListener('click', () => {
-    selectedSex = '0';
-    document.getElementById('maleButton').classList.add('active');
-    document.getElementById('femaleButton').classList.remove('active');
-    document.getElementById('bothButton').classList.remove('active');
-    applyCombinedFilter(selectedSex);
-});
-
-document.getElementById('femaleButton').addEventListener('click', () => {
-    selectedSex = '1';
-    document.getElementById('femaleButton').classList.add('active');
-    document.getElementById('maleButton').classList.remove('active');
-    document.getElementById('bothButton').classList.remove('active');
-    applyCombinedFilter(selectedSex);
-});
-
-document.getElementById('bothButton').addEventListener('click', () => {
-    selectedSex = 'Both';
-    document.getElementById('bothButton').classList.add('active');
-    document.getElementById('maleButton').classList.remove('active');
-    document.getElementById('femaleButton').classList.remove('active');
-    applyCombinedFilter(selectedSex);
-});
-
-// Load Data on Page Load
-document.addEventListener('DOMContentLoaded', async () => {
-    await loadData();
-    updateRunnerAnimation();
-});
-
-});

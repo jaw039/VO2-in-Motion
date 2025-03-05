@@ -26,28 +26,71 @@
         <button data-speed="9" class="filter-button"> Speed 9</button>
     </div>
     <h2>Dynamic Visualization of Treadmill Speed and O₂ consumption for Males and Females</h2>
+    
+    <!-- Male runner container -->
     <div class="treadmill-container">
         <svg class="treadmill" width="400" height="200">
             <rect x="50" y="200" width="300" height="20" fill="black"></rect>
         </svg>
         <img id="runner-m" src="runner-m.jpeg" alt="Running Man">
         <div class="heart-container" id="heart-container-m">
-            <img id="heart-m" class="heart" src="heart.jpg" alt="Heart">
+            <svg class="heart-svg" id="heart-m" width="60" height="60" viewBox="0 0 100 100">
+                <defs>
+                    <radialGradient id="oxygen-gradient-m" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                        <stop offset="0%" stop-color="#ff0000" />
+                        <stop offset="100%" stop-color="#990000" />
+                    </radialGradient>
+                </defs>
+                <!-- Heart path -->
+                <path class="heart-path" d="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" 
+                    fill="url(#oxygen-gradient-m)" />
+                
+                <!-- Oxygen circulation animation -->
+                <circle class="oxygen-particle" r="2" fill="#ffffff" opacity="0.7">
+                    <animateMotion dur="3s" repeatCount="indefinite" path="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" />
+                </circle>
+                <circle class="oxygen-particle" r="2" fill="#ffffff" opacity="0.7">
+                    <animateMotion dur="3s" begin="0.5s" repeatCount="indefinite" path="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" />
+                </circle>
+                <circle class="oxygen-particle" r="2" fill="#ffffff" opacity="0.7">
+                    <animateMotion dur="3s" begin="1s" repeatCount="indefinite" path="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" />
+                </circle>
+            </svg>
             <span class="heart-label">O₂ Consumption</span>
         </div>
     </div>
-
+    
+    <!-- Female runner container - this was missing -->
     <div class="treadmill-container">
         <svg class="treadmill" width="400" height="200">
             <rect x="50" y="200" width="300" height="20" fill="black"></rect>
         </svg>
         <img id="runner-f" src="runner-f.jpg" alt="Running Woman">
         <div class="heart-container" id="heart-container-f">
-            <img id="heart-f" class="heart" src="heart.jpg" alt="Heart">
+            <svg class="heart-svg" id="heart-f" width="60" height="60" viewBox="0 0 100 100">
+              <defs>
+                <radialGradient id="oxygen-gradient-f" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                  <stop offset="0%" stop-color="#ff0000" />
+                  <stop offset="100%" stop-color="#990000" />
+                </radialGradient>
+              </defs>
+              <!-- Heart path -->
+              <path class="heart-path" d="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" 
+                    fill="url(#oxygen-gradient-f)" />
+              
+              <!-- Oxygen circulation animation -->
+              <circle class="oxygen-particle" r="2" fill="#ffffff" opacity="0.7">
+                <animateMotion dur="3s" repeatCount="indefinite" path="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" />
+              </circle>
+              <circle class="oxygen-particle" r="2" fill="#ffffff" opacity="0.7">
+                <animateMotion dur="3s" begin="0.5s" repeatCount="indefinite" path="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" />
+              </circle>
+              <circle class="oxygen-particle" r="2" fill="#ffffff" opacity="0.7">
+                <animateMotion dur="3s" begin="1s" repeatCount="indefinite" path="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" />
+              </circle>
+            </svg>
             <span class="heart-label">O₂ Consumption</span>
         </div>
     </div>
-</div>
-</div>
 </body>
 </html>

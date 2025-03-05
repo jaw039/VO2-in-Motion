@@ -75,7 +75,20 @@ svg {
 
 @keyframes heartbeat {
     0% { transform: scale(1); }
-    50% { transform: scale(1.3); }
+    15% { transform: scale(1.15); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.1); }
+    60% { transform: scale(1); }
+    100% { transform: scale(1); }
+}
+
+/* Speed-based heart animations */
+@keyframes heartbeat-fast {
+    0% { transform: scale(1); }
+    10% { transform: scale(1.25); }
+    20% { transform: scale(1); }
+    30% { transform: scale(1.15); }
+    40% { transform: scale(1); }
     100% { transform: scale(1); }
 }
 
@@ -122,3 +135,29 @@ svg {
 .running-medium { animation: runMedium 0.7s infinite alternate linear; }
 .running-fast { animation: runFast 0.5s infinite alternate linear; }
 .running-max { animation: runMax 0.4s infinite alternate linear; }
+
+.heart-svg {
+    transform-origin: center;
+    transition: all 0.5s ease;
+}
+
+.oxygen-particle {
+    filter: blur(1px);
+}
+
+.oxygen-particle-fast {
+    filter: blur(2px);
+    opacity: 0.9;
+}
+
+/* Heart path styling */
+.heart-path {
+    transition: fill 0.5s ease;
+}
+
+/* Dynamic heart sizes based on speed */
+.heart-size-5 { width: 40px; height: 40px; }
+.heart-size-6 { width: 45px; height: 45px; }
+.heart-size-7 { width: 50px; height: 50px; }
+.heart-size-8 { width: 55px; height: 55px; }
+.heart-size-9 { width: 60px; height: 60px; }
