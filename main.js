@@ -6,6 +6,14 @@ let selectedSpeed = null;
 let showAverage = true; // Set to true by default
 let selectedSex = '0';  // Default to male ('0')
 
+const runnerMan = document.getElementById('runner-m');
+const runnerWoman = document.getElementById('runner-f');
+const heartMan = document.getElementById('heart-m');
+const heartWoman = document.getElementById('heart-f');
+const heartContainerMan = document.getElementById('heart-container-m');
+const heartContainerWoman = document.getElementById('heart-container-f');
+
+
 // Loads the test_measure data before building chart
 async function loadData() {
   measureData = await d3.csv('test_measure.csv', (row) => ({
@@ -378,4 +386,93 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   addSpeedButtonListeners(); // Attach listeners to speed buttons
   addSexButtonListeners();
+
+  function updateRunnerAnimation() {
+    runnerMan.classList.remove('running-slow', 'running-medium', 'running-fast', 'running-max');
+    runnerWoman.classList.remove('running-slow', 'running-medium', 'running-fast', 'running-max');
+
+    heartMan.classList.remove('beating', 'heart-size-5', 'heart-size-6', 'heart-size-7', 'heart-size-8', 'heart-size-9');
+    heartWoman.classList.remove('beating', 'heart-size-5', 'heart-size-6', 'heart-size-7', 'heart-size-8', 'heart-size-9');
+
+    heartContainerMan.style.display = "none";
+    heartContainerWoman.style.display = "none";
+
+    if (selectedSex === '0' || selectedSex === 'Both') {
+      heartContainerMan.style.display = "block";
+      heartMan.classList.add('beating', `heart-size-${selectedSpeed}`);
+  }
+
+  if (selectedSex === '1' || selectedSex === 'Both') {
+      heartContainerWoman.style.display = "block";
+      heartWoman.classList.add('beating', `heart-size-${selectedSpeed}`);
+  }
+
+  if (selectedSex === '0' || selectedSex === 'Both') {
+      if (selectedSpeed == 5) runnerMan.classList.add('running-slow');
+      if (selectedSpeed == 6) runnerMan.classList.add('running-medium');
+      if (selectedSpeed == 7) runnerMan.classList.add('running-fast');
+      if (selectedSpeed >= 8) runnerMan.classList.add('running-max');
+  }
+
+  if (selectedSex === '1' || selectedSex === 'Both') {
+      if (selectedSpeed == 5) runnerWoman.classList.add('running-slow');
+      if (selectedSpeed == 6) runnerWoman.classList.add('running-medium');
+      if (selectedSpeed == 7) runnerWoman.classList.add('running-fast');
+      if (selectedSpeed >= 8) runnerWoman.classList.add('running-max');
+  }
+}
+
+// Filter Data & Update Graph
+function applyCombinedFilter(sex) {
+    selectedSex = sex;
+    filteredData = data.filter(d => {
+        const matchesSpeed = selectedSpeed === null || d.Speed === selectedSpeed;
+        const matchesSex = sex === 'Both' || d.Sex === sex;
+        return matchesSpeed && matchesSex;
+    });
+    buildChart();
+    updateRunnerAnimation();
+}
+
+// Speed Button Event Listeners
+document.querySelectorAll('button[data-speed]').forEach(button => {
+    button.addEventListener('click', () => {
+        selectedSpeed = Number(button.getAttribute('data-speed'));
+        document.querySelectorAll('button[data-speed]').forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        applyCombinedFilter(selectedSex);
+    });
+});
+
+// Sex Button Event Listeners
+document.getElementById('maleButton').addEventListener('click', () => {
+    selectedSex = '0';
+    document.getElementById('maleButton').classList.add('active');
+    document.getElementById('femaleButton').classList.remove('active');
+    document.getElementById('bothButton').classList.remove('active');
+    applyCombinedFilter(selectedSex);
+});
+
+document.getElementById('femaleButton').addEventListener('click', () => {
+    selectedSex = '1';
+    document.getElementById('femaleButton').classList.add('active');
+    document.getElementById('maleButton').classList.remove('active');
+    document.getElementById('bothButton').classList.remove('active');
+    applyCombinedFilter(selectedSex);
+});
+
+document.getElementById('bothButton').addEventListener('click', () => {
+    selectedSex = 'Both';
+    document.getElementById('bothButton').classList.add('active');
+    document.getElementById('maleButton').classList.remove('active');
+    document.getElementById('femaleButton').classList.remove('active');
+    applyCombinedFilter(selectedSex);
+});
+
+// Load Data on Page Load
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadData();
+    updateRunnerAnimation();
+});
+
 });

@@ -11,18 +11,43 @@
 <body>
     <h1>How Does The Speed of Treadmill Affect Average Oxygen Consumption For Males and Females?</h1>
     <svg id="line-graph"></svg>
+    <h3>Choose Gender</h3>
     <div id="buttonsSex">
         <button id="maleButton" class="filter-button">Male</button>
         <button id="femaleButton" class="filter-button">Female</button>
         <button id="bothButton" class="filter-button">Both</button>
     </div>
+    <h3>Choose Treadmill Speed</h3>
     <div id="buttonsSpeed">
-        <button data-speed="5" class="filter-button">5</button>
-        <button data-speed="6" class="filter-button">6</button>
-        <button data-speed="7" class="filter-button">7</button>
-        <button data-speed="8" class="filter-button">8</button>
-        <button data-speed="9" class="filter-button">9</button>
+        <button data-speed="5" class="filter-button"> Speed 5</button>
+        <button data-speed="6" class="filter-button"> Speed 6</button>
+        <button data-speed="7" class="filter-button"> Speed 7</button>
+        <button data-speed="8" class="filter-button"> Speed 8</button>
+        <button data-speed="9" class="filter-button"> Speed 9</button>
     </div>
-    
+    <h2>Dynamic Visualization of Treadmill Speed and O₂ consumption for Man and Woman</h2>
+    <div class="treadmill-container">
+        <svg class="treadmill" width="400" height="200">
+            <rect x="50" y="200" width="300" height="20" fill="black"></rect>
+        </svg>
+        <img id="runner-m" src="runner-m.jpeg" alt="Running Man">
+        <div class="heart-container" id="heart-container-m">
+            <img id="heart-m" class="heart" src="heart.jpg" alt="Heart">
+            <span class="heart-label">O₂ Consumption</span>
+        </div>
+    </div>
+
+    <div class="treadmill-container">
+        <svg class="treadmill" width="400" height="200">
+            <rect x="50" y="200" width="300" height="20" fill="black"></rect>
+        </svg>
+        <img id="runner-f" src="runner-f.jpg" alt="Running Woman">
+        <div class="heart-container" id="heart-container-f">
+            <img id="heart-f" class="heart" src="heart.jpg" alt="Heart">
+            <span class="heart-label">O₂ Consumption</span>
+        </div>
+    </div>
+</div>
+</div>
 </body>
 </html>

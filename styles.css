@@ -32,3 +32,93 @@ svg {
     display: block;
     margin: auto;
 }
+
+.treadmill-container {
+    position: relative;
+    width: 400px;
+    height: 200px;
+    margin: 20px auto;
+}
+
+.treadmill {
+    width: 400px;
+    height: 20px;
+    position: absolute;
+    bottom: 30px;
+    background: black;
+    left: 0;
+    border-radius: 10px;
+}
+
+/* Position the runners correctly inside their treadmills */
+#runner-m, #runner-f {
+    position: absolute;
+    bottom: 60px; /* Raised slightly to stay above the treadmill */
+    left: 50px; /* Start at a better position on the treadmill */
+    width: 80px; /* Increased size for better visibility */
+    height: auto;
+}
+
+.heart-container {
+    position: absolute;
+    top: 40px;
+    right: -140px;
+    text-align: center;
+    display: none; /* Initially hidden */
+}
+
+.heart {
+    width: 40px;
+    height: 40px;
+    transform-origin: center;
+}
+
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+.beating { animation: heartbeat 0.8s infinite ease-in-out; }
+
+/* Heart size variations based on speed */
+.heart-size-5 { width: 30px; height: 30px; }
+.heart-size-6 { width: 35px; height: 35px; }
+.heart-size-7 { width: 40px; height: 40px; }
+.heart-size-8 { width: 45px; height: 45px; }
+.heart-size-9 { width: 50px; height: 50px; }
+
+/* Label under the heart */
+.heart-label {
+    font-size: 14px;
+    color: black;
+    display: block;
+    margin-top: 5px;
+}
+
+/* Improved Running Animations with More Stretched Motion */
+@keyframes runSlow {
+    0% { transform: translateX(0px); }
+    100% { transform: translateX(140px); }
+}
+
+@keyframes runMedium {
+    0% { transform: translateX(0px); }
+    100% { transform: translateX(200px); }
+}
+
+@keyframes runFast {
+    0% { transform: translateX(0px); }
+    100% { transform: translateX(260px); }
+}
+
+@keyframes runMax {
+    0% { transform: translateX(0px); }
+    100% { transform: translateX(290px); } /* Stays inside treadmill */
+}
+
+/* Speed Classes */
+.running-slow { animation: runSlow 1s infinite alternate linear; }
+.running-medium { animation: runMedium 0.7s infinite alternate linear; }
+.running-fast { animation: runFast 0.5s infinite alternate linear; }
+.running-max { animation: runMax 0.4s infinite alternate linear; }
