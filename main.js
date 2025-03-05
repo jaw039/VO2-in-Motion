@@ -429,10 +429,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Get heart elements
     const maleHeart = document.getElementById('heart-m');
     const femaleHeart = document.getElementById('heart-f');
+    const maleHeartRate = document.getElementById('heart-rate-m');
+    const femaleHeartRate = document.getElementById('heart-rate-f');
+    
+    // Calculate average heart rates for current selection
+    let maleAvgHR = 0;
+    let femaleAvgHR = 0;
+    
+    if (selectedSpeed) {
+      // Calculate average HR for males at current speed
+      const maleHRData = data.filter(d => d.Sex === '0' && d.Speed === selectedSpeed);
+      if (maleHRData.length > 0) {
+        maleAvgHR = Math.round(d3.mean(maleHRData, d => d.HR));
+      }
+      
+      // Calculate average HR for females at current speed
+      const femaleHRData = data.filter(d => d.Sex === '1' && d.Speed === selectedSpeed);
+      if (femaleHRData.length > 0) {
+        femaleAvgHR = Math.round(d3.mean(femaleHRData, d => d.HR));
+      }
+    }
     
     if (selectedSex === '0' || selectedSex === 'Both') {
       // Update male heart if visible
-      if (maleHeart) {
+      if (maleHeart && maleHeartRate) {
         // Get gradient elements
         const maleGradient = document.querySelector('#oxygen-gradient-m');
         
@@ -471,12 +491,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             particle.setAttribute('r', '2');
           }
         });
+        
+        // Add heart rate display
+        maleHeartRate.textContent = `${maleAvgHR} BPM`;
+        
+        // Change heart rate color based on intensity
+        if (maleAvgHR > 160) {
+          maleHeartRate.style.color = '#ff0000';
+        } else if (maleAvgHR > 130) {
+          maleHeartRate.style.color = '#ff5500';
+        } else {
+          maleHeartRate.style.color = '#d30000';
+        }
       }
     }
     
     if (selectedSex === '1' || selectedSex === 'Both') {
       // Update female heart with similar logic
-      if (femaleHeart) {
+      if (femaleHeart && femaleHeartRate) {
         const femaleGradient = document.querySelector('#oxygen-gradient-f');
         
         const colorIntensity = Math.min(100, selectedSpeed * 10);
@@ -507,6 +539,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             particle.setAttribute('r', '2');
           }
         });
+        
+        // Add heart rate display
+        femaleHeartRate.textContent = `${femaleAvgHR} BPM`;
+        
+        // Change heart rate color based on intensity
+        if (femaleAvgHR > 160) {
+          femaleHeartRate.style.color = '#ff0000';
+        } else if (femaleAvgHR > 130) {
+          femaleHeartRate.style.color = '#ff5500';
+        } else {
+          femaleHeartRate.style.color = '#d30000';
+        }
       }
     }
   }

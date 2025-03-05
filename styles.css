@@ -61,10 +61,11 @@ svg {
 
 .heart-container {
     position: absolute;
-    top: 40px;
+    top: 30px;
     right: -140px;
     text-align: center;
     display: none; /* Initially hidden */
+    width: 120px;
 }
 
 .heart {
@@ -155,3 +156,17 @@ svg {
 .heart-size-7 { width: 50px; height: 50px; }
 .heart-size-8 { width: 55px; height: 55px; }
 .heart-size-9 { width: 60px; height: 60px; }
+
+/* Add this to your styles.css file */
+.heart-rate {
+    font-size: 16px;
+    font-weight: bold;
+    color: #d30000;
+    margin-top: 8px;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 2px 6px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: all 0.5s ease;
+    display: inline-block;
+}
