@@ -565,38 +565,3 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   
   });
-
-function updateHeartVisualization() {
-  // Remove all classes first
-  const maleHeart = document.getElementById('heart-m');
-  const femaleHeart = document.getElementById('heart-f');
-  
-  if (!selectedSpeed) return;
-  
-  // Update gradient colors based on speed
-  const maleGradient = document.getElementById('oxygen-gradient-m');
-  const femaleGradient = document.getElementById('oxygen-gradient-f');
-  
-  // Oxygen-rich blood is bright red, oxygen-poor is darker
-  // Higher speed = more rapid oxygen consumption
-  const colorIntensity = Math.min(100, selectedSpeed * 10);
-  
-  if (maleGradient && (selectedSex === '0' || selectedSex === 'Both')) {
-    const startColor = `rgb(255, ${155 - colorIntensity}, ${155 - colorIntensity})`;
-    const endColor = `rgb(180, ${55 - colorIntensity/2}, ${55 - colorIntensity/2})`;
-    
-    maleGradient.querySelector('stop:first-child').setAttribute('stop-color', startColor);
-    maleGradient.querySelector('stop:last-child').setAttribute('stop-color', endColor);
-    
-    // Update animation speed based on treadmill speed
-    const particleSpeed = 4 - (selectedSpeed - 5) * 0.5; // 3s at speed 5, faster at higher speeds
-    maleHeart.querySelectorAll('.oxygen-particle animateMotion').forEach(anim => {
-      anim.setAttribute('dur', `${particleSpeed}s`);
-    });
-    
-    // Update heart beat animation
-    maleHeart.style.animation = `heartbeat ${1.2 - (selectedSpeed - 5) * 0.15}s infinite ease-in-out`;
-  }
-  
-  // Similar updates for female heart...
-}

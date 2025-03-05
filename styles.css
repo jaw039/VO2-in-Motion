@@ -94,13 +94,6 @@ svg {
 
 .beating { animation: heartbeat 0.8s infinite ease-in-out; }
 
-/* Heart size variations based on speed */
-.heart-size-5 { width: 30px; height: 30px; }
-.heart-size-6 { width: 35px; height: 35px; }
-.heart-size-7 { width: 40px; height: 40px; }
-.heart-size-8 { width: 45px; height: 45px; }
-.heart-size-9 { width: 50px; height: 50px; }
-
 /* Label under the heart */
 .heart-label {
     font-size: 14px;
@@ -138,11 +131,12 @@ svg {
 
 .heart-svg {
     transform-origin: center;
-    transition: all 0.5s ease;
+    transition: all 0.5s ease, width 0.3s ease, height 0.3s ease;
 }
 
 .oxygen-particle {
     filter: blur(1px);
+    transition: opacity 0.5s ease, r 0.5s ease, filter 0.5s ease;
 }
 
 .oxygen-particle-fast {
