@@ -183,6 +183,40 @@ svg {
     font-size: 16px; /* Adequate font size for readability */
 }
 
+/* Nav Bar */
+/* Styling for the nav element */
+nav {
+    background-color: #333; /* Dark background for the nav bar */
+    display: flex; /* Use flexbox for layout */
+    justify-content: center; /* Center navigation items horizontally */
+    align-items: center; /* Align items vertically in the center */
+    padding: 14px 0; /* Padding top and bottom */
+}
+
+/* Remove float from li, no longer needed with flexbox */
+ul {
+    list-style-type: none; /* No bullets */
+    margin: 0; /* No margin */
+    padding: 0; /* No padding */
+    display: flex; /* Use flexbox for li items */
+}
+
+li {
+    margin: 0 10px; /* Margin between menu items */
+}
+
+li a {
+    color: white; /* White text color */
+    text-align: center; /* Center text */
+    padding: 8px 16px; /* Padding around the text */
+    text-decoration: none; /* Remove underline from links */
+    display: block; /* Block display to fill the li element */
+}
+
+li a:hover {
+    background-color: #111; /* Background color on hover */
+}
+
 
 
 

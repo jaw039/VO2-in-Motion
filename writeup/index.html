@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Write-up</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+</head>
+<body>
+    <nav> 
+        <ul>
+            <li><a href="../index.html">Visualization</a></li>
+            <li><a href="index.html">Write-Up</a></li>
+        </ul>
+    </nav>
+    <header>
+        <h1>Write-up</h1>
+    </header>
+    <section class="content">
+       <p>
+        At this stage of the project, we have investigated our data and brainstormed ideas that help answer our question: 
+        How does VO2 consumption vary across genders at different speeds? 
+        For the development of our visualization, we have added a line graph where the x-axis represents time and the y-axis represents VO2 level. 
+        We have also added filters to the graph, allowing users to explore how VO2 consumption differs across genders and varies with different speeds.
+        Additionally, we've implemented a brush feature that shows the average VO2 level over a selected period.
+        Furthermore, we've incorporated a legend into our graph, which is useful for users who wish to compare VO2 consumption across genders. 
+        We've also added a visualization that includes a boy and a girl running on treadmills, displaying their heart rates at selected speeds.
+       </p>
+       <p>
+        Looking ahead, the most challenging part of our project will likely be smoothing out the line graph, as our current lines have too many oscillations. 
+        This will require significant data cleaning and possibly returning to Jupyter Notebook to determine what might need to be imputed. 
+        This process will involve ensuring that aggregations, such as averages over time for each gender, do not include extreme outliers that could skew these averages.
+        Additionally, we must ensure that this approach applies not only to the gender filter but also to the age filter we plan to add.
+        The data cleaning process and aggregation will be time-consuming, but we see this as beneficial for providing viewers with a smoother viewing experience and a clearer answer to our question.
+        We hope that this will make our line chart easier to understand and interact with.
+       </p>
+
+
+        
+    </section>
+</body>
+</html>
