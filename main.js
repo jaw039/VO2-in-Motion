@@ -138,7 +138,7 @@ function buildChart() {
           const [x0, x1] = selection.map(xScale.invert);
           
           // Get data within the selected time range
-          const filtered = data.filter(d => d.time >= x0 && d.time <= x1);
+          const filtered = filteredData.filter(d => d.time >= x0 && d.time <= x1);
           
           // Calculate averages based on selected sex filter
           if (selectedSex === 'Both') {
