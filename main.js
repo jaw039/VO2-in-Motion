@@ -105,7 +105,7 @@ function buildChart() {
   // Add labels
   svg.append('text')
     .attr('x', width / 2)
-    .attr('y', height)
+    .attr('y', height - 10)
     .attr('text-anchor', 'middle')
     .attr('font-size', '14px')
     .attr('fill', 'black')
@@ -136,18 +136,65 @@ function buildChart() {
       const selection = event.selection;
       if (selection) {
           const [x0, x1] = selection.map(xScale.invert);
-          const filtered = filteredData.filter(d => d.time >= x0 && d.time <= x1);
-          const averageVO2 = d3.mean(filtered, d => d.VO2);
-  
-          // Update the average VO2 display
-          if (!isNaN(averageVO2)) {
-              document.getElementById('average-vo2-value').textContent = averageVO2.toFixed(2);
-          } else {
-              document.getElementById('average-vo2-value').textContent = "N/A"; // No selection or no data in selection
+          
+          // Get data within the selected time range
+          const filtered = data.filter(d => d.time >= x0 && d.time <= x1);
+          
+          // Calculate averages based on selected sex filter
+          if (selectedSex === 'Both') {
+              // Calculate overall average VO2
+              const averageVO2 = d3.mean(filtered, d => d.VO2);
+              document.getElementById('average-vo2-value').textContent = 
+                  !isNaN(averageVO2) ? averageVO2.toFixed(2) : "N/A";
+              
+              // Calculate male average
+              const maleAverageVO2 = d3.mean(filtered.filter(d => d.Sex === '0'), d => d.VO2);
+              document.getElementById('male-vo2-value').textContent = 
+                  !isNaN(maleAverageVO2) ? maleAverageVO2.toFixed(2) : "N/A";
+              
+              // Calculate female average
+              const femaleAverageVO2 = d3.mean(filtered.filter(d => d.Sex === '1'), d => d.VO2);
+              document.getElementById('female-vo2-value').textContent = 
+                  !isNaN(femaleAverageVO2) ? femaleAverageVO2.toFixed(2) : "N/A";
+              
+              // Show all average displays
+              document.getElementById('overall-average-container').style.display = 'block';
+              document.getElementById('male-average-container').style.display = 'block';
+              document.getElementById('female-average-container').style.display = 'block';
+          } 
+          else if (selectedSex === '0') {
+              // Only show male average
+              const maleAverageVO2 = d3.mean(filtered.filter(d => d.Sex === '0'), d => d.VO2);
+              document.getElementById('male-vo2-value').textContent = 
+                  !isNaN(maleAverageVO2) ? maleAverageVO2.toFixed(2) : "N/A";
+              
+              // Hide other displays
+              document.getElementById('overall-average-container').style.display = 'none';
+              document.getElementById('male-average-container').style.display = 'block';
+              document.getElementById('female-average-container').style.display = 'none';
+          }
+          else if (selectedSex === '1') {
+              // Only show female average
+              const femaleAverageVO2 = d3.mean(filtered.filter(d => d.Sex === '1'), d => d.VO2);
+              document.getElementById('female-vo2-value').textContent = 
+                  !isNaN(femaleAverageVO2) ? femaleAverageVO2.toFixed(2) : "N/A";
+              
+              // Hide other displays
+              document.getElementById('overall-average-container').style.display = 'none';
+              document.getElementById('male-average-container').style.display = 'none';
+              document.getElementById('female-average-container').style.display = 'block';
           }
       } else {
-          // If no selection, show N/A or reset
+          // If no selection, hide all or show N/A
           document.getElementById('average-vo2-value').textContent = "N/A";
+          document.getElementById('male-vo2-value').textContent = "N/A";
+          document.getElementById('female-vo2-value').textContent = "N/A";
+          
+          // Option 1: Keep current visibility
+          // Option 2: Hide all averages when no selection
+          // document.getElementById('overall-average-container').style.display = 'none';
+          // document.getElementById('male-average-container').style.display = 'none';
+          // document.getElementById('female-average-container').style.display = 'none';
       }
   }
 }
@@ -222,6 +269,22 @@ function applyCombinedFilter(sex) {
     const matchesSex = sex === 'Both' || d.Sex === sex; // Match sex if specified
     return matchesSpeed && matchesSex;
   });
+
+  // Update which average displays are visible
+  if (sex === 'Both') {
+    document.getElementById('overall-average-container').style.display = 'block';
+    document.getElementById('male-average-container').style.display = 'block';
+    document.getElementById('female-average-container').style.display = 'block';
+} else if (sex === '0') {
+    document.getElementById('overall-average-container').style.display = 'none';
+    document.getElementById('male-average-container').style.display = 'block';
+    document.getElementById('female-average-container').style.display = 'none';
+} else if (sex === '1') {
+    document.getElementById('overall-average-container').style.display = 'none';
+    document.getElementById('male-average-container').style.display = 'none';
+    document.getElementById('female-average-container').style.display = 'block';
+}
+
   buildChart(); // Rebuild chart with combined filters
   updateRunnerAnimation();
 }
