@@ -16,104 +16,198 @@
         </ul>
     </nav>
 
-    <h1>How Does The Speed of Treadmill Affect Average Oxygen Consumption For Males and Females?</h1>
-    <svg id="line-graph"></svg>
-    <div id="averages-display">
-        <div id="overall-average-container">
-            <span>Overall Average VO2: </span>
-            <span id="average-vo2-value">N/A</span>
-        </div>
-        <div id="male-average-container">
-            <span>Male Average VO2: </span>
-            <span id="male-vo2-value">N/A</span>
-        </div>
-        <div id="female-average-container">
-            <span>Female Average VO2: </span>
-            <span id="female-vo2-value">N/A</span>
-        </div>
-    </div>
-    <h3>Choose Gender</h3>
-    <div id="buttonsSex">
-        <button id="maleButton" class="filter-button">Male</button>
-        <button id="femaleButton" class="filter-button">Female</button>
-        <button id="bothButton" class="filter-button">Both</button>
-    </div>
-    <h3>Choose Treadmill Speed</h3>
-    <div id="buttonsSpeed">
-        <button data-speed="5" class="filter-button"> Speed 5</button>
-        <button data-speed="6" class="filter-button"> Speed 6</button>
-        <button data-speed="7" class="filter-button"> Speed 7</button>
-        <button data-speed="8" class="filter-button"> Speed 8</button>
-        <button data-speed="9" class="filter-button"> Speed 9</button>
-    </div>
-    <h2>Dynamic Visualization of Treadmill Speed and O₂ consumption for Males and Females</h2>
-    
-    <!-- Male runner container -->
-    <div class="treadmill-container">
-        <svg class="treadmill" width="400" height="200">
-            <rect x="50" y="200" width="300" height="20" fill="black"></rect>
-        </svg>
-        <img id="runner-m" src="runner-m.jpeg" alt="Running Man">
-        <div class="heart-container" id="heart-container-m">
-            <svg class="heart-svg" id="heart-m" width="60" height="60" viewBox="0 0 100 100">
-                <defs>
-                    <radialGradient id="oxygen-gradient-m" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-                        <stop offset="0%" stop-color="#ff0000" />
-                        <stop offset="100%" stop-color="#990000" />
-                    </radialGradient>
-                </defs>
-                <!-- Heart path -->
-                <path class="heart-path" d="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" 
-                    fill="url(#oxygen-gradient-m)" />
-                
-                <!-- Oxygen circulation animation -->
-                <circle class="oxygen-particle" r="2" fill="#ffffff" opacity="0.7">
-                    <animateMotion dur="3s" repeatCount="indefinite" path="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" />
-                </circle>
-                <circle class="oxygen-particle" r="2" fill="#ffffff" opacity="0.7">
-                    <animateMotion dur="3s" begin="0.5s" repeatCount="indefinite" path="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" />
-                </circle>
-                <circle class="oxygen-particle" r="2" fill="#ffffff" opacity="0.7">
-                    <animateMotion dur="3s" begin="1s" repeatCount="indefinite" path="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" />
-                </circle>
-            </svg>
-            <span class="heart-label">O₂ Consumption</span>
-            <div class="heart-rate" id="heart-rate-m">-- BPM</div>
-        </div>
+    <div class="header">
+        <h1>How Does The Speed of Treadmill Affect Average Oxygen Consumption For Males and Females?</h1>
+        <p class="citation">A data visualization exploring physiological differences in exercise responses</p>
     </div>
     
-    <!-- Female runner container - this was missing -->
-    <div class="treadmill-container">
-        <svg class="treadmill" width="400" height="200">
-            <rect x="50" y="200" width="300" height="20" fill="black"></rect>
-        </svg>
-        <img id="runner-f" src="runner-f.jpg" alt="Running Woman">
-        <div class="heart-container" id="heart-container-f">
-            <svg class="heart-svg" id="heart-f" width="60" height="60" viewBox="0 0 100 100">
-              <defs>
-                <radialGradient id="oxygen-gradient-f" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-                  <stop offset="0%" stop-color="#ff0000" />
-                  <stop offset="100%" stop-color="#990000" />
-                </radialGradient>
-              </defs>
-              <!-- Heart path -->
-              <path class="heart-path" d="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" 
-                    fill="url(#oxygen-gradient-f)" />
-              
-              <!-- Oxygen circulation animation -->
-              <circle class="oxygen-particle" r="2" fill="#ffffff" opacity="0.7">
-                <animateMotion dur="3s" repeatCount="indefinite" path="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" />
-              </circle>
-              <circle class="oxygen-particle" r="2" fill="#ffffff" opacity="0.7">
-                <animateMotion dur="3s" begin="0.5s" repeatCount="indefinite" path="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" />
-              </circle>
-              <circle class="oxygen-particle" r="2" fill="#ffffff" opacity="0.7">
-                <animateMotion dur="3s" begin="1s" repeatCount="indefinite" path="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" />
-              </circle>
-            </svg>
-            <span class="heart-label">O₂ Consumption</span>
-            <div class="heart-rate" id="heart-rate-f">-- BPM</div>
+    <div class="intro-section">
+        <p>VO2 (volume of oxygen) is a measure of how much oxygen your body uses during exercise. 
+        It's an important indicator of cardiovascular fitness and aerobic endurance.</p>
+        
+        <p>This interactive visualization explores how oxygen consumption differs between males and females 
+        at various treadmill speeds, helping us understand physiological differences in exercise response.</p>
+        
+        <div class="key-insights">
+            <h3>Key Insights:</h3>
+            <ul>
+                <li>Males typically have higher VO2 values than females at the same speed due to 
+                differences in body composition and physiology</li>
+                <li>The gap in oxygen consumption between sexes widens as speed increases</li>
+                <li>Heart rate and VO2 don't always increase at the same rate, showing the complexity of 
+                human physiology</li>
+            </ul>
+        </div>
+        
+        <div class="how-to-use">
+            <h3>How to Use This Visualization:</h3>
+            <ol>
+                <li>Choose a gender (male, female, or both) using the buttons below</li>
+                <li>Select a treadmill speed to see how it affects oxygen consumption</li>
+                <li>Use the brush tool on the graph to select a time range and view average VO2 values</li>
+                <li>Watch the animated runners and heart visualizations to see the relationship between 
+                speed and oxygen usage</li>
+            </ol>
         </div>
     </div>
+
+    <div class="dashboard">
+        <div class="panel main-chart">
+            <h2>VO2 Consumption Over Time</h2>
+            <svg id="line-graph"></svg>
+            <div id="averages-display">
+                <div id="overall-average-container">
+                    <span>Overall Average VO2: </span>
+                    <span id="average-vo2-value">N/A</span>
+                </div>
+                <div id="male-average-container">
+                    <span>Male Average VO2: </span>
+                    <span id="male-vo2-value">N/A</span>
+                </div>
+                <div id="female-average-container">
+                    <span>Female Average VO2: </span>
+                    <span id="female-vo2-value">N/A</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel filters">
+            <h2>Visualization Controls</h2>
+            <div class="filter-group">
+                <h3>Choose Gender</h3>
+                <div id="buttonsSex" class="button-group">
+                    <button id="maleButton" class="filter-button">Male</button>
+                    <button id="femaleButton" class="filter-button">Female</button>
+                    <button id="bothButton" class="filter-button">Both</button>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <h3>Choose Treadmill Speed</h3>
+                <div id="buttonsSpeed" class="button-group">
+                    <button data-speed="5" class="filter-button">Speed 5</button>
+                    <button data-speed="6" class="filter-button">Speed 6</button>
+                    <button data-speed="7" class="filter-button">Speed 7</button>
+                    <button data-speed="8" class="filter-button">Speed 8</button>
+                    <button data-speed="9" class="filter-button">Speed 9</button>
+                </div>
+            </div>
+            
+            <div class="current-selection">
+                <p>Current selection: <span id="current-selection">Male, All speeds</span></p>
+                <p class="tip">Tip: You can drag your mouse over the chart to see averages for a specific time range.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel animation">
+        <h2>Dynamic Visualization of Treadmill Speed and O₂ consumption for Males and Females</h2>
+        <div class="runners-container">
+            <!-- Male runner container -->
+            <div class="treadmill-container">
+                <svg class="treadmill" width="400" height="200">
+                    <rect x="50" y="200" width="300" height="20" fill="black"></rect>
+                </svg>
+                <img id="runner-m" src="runner-m.jpeg" alt="Running Man">
+                <div class="heart-container" id="heart-container-m">
+                    <svg class="heart-svg" id="heart-m" width="60" height="60" viewBox="0 0 100 100">
+                        <defs>
+                            <radialGradient id="oxygen-gradient-m" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                                <stop offset="0%" stop-color="#ff0000" />
+                                <stop offset="100%" stop-color="#990000" />
+                            </radialGradient>
+                        </defs>
+                        <!-- Heart path -->
+                        <path class="heart-path" d="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" 
+                            fill="url(#oxygen-gradient-m)" />
+                        
+                        <!-- Oxygen circulation animation -->
+                        <circle class="oxygen-particle" r="2" fill="#ffffff" opacity="0.7">
+                            <animateMotion dur="3s" repeatCount="indefinite" path="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" />
+                        </circle>
+                        <circle class="oxygen-particle" r="2" fill="#ffffff" opacity="0.7">
+                            <animateMotion dur="3s" begin="0.5s" repeatCount="indefinite" path="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" />
+                        </circle>
+                        <circle class="oxygen-particle" r="2" fill="#ffffff" opacity="0.7">
+                            <animateMotion dur="3s" begin="1s" repeatCount="indefinite" path="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" />
+                        </circle>
+                    </svg>
+                    <span class="heart-label">O₂ Consumption</span>
+                    <div class="heart-rate" id="heart-rate-m">-- BPM</div>
+                </div>
+            </div>
+            
+            <!-- Female runner container -->
+            <div class="treadmill-container">
+                <svg class="treadmill" width="400" height="200">
+                    <rect x="50" y="200" width="300" height="20" fill="black"></rect>
+                </svg>
+                <img id="runner-f" src="runner-f.jpg" alt="Running Woman">
+                <div class="heart-container" id="heart-container-f">
+                    <svg class="heart-svg" id="heart-f" width="60" height="60" viewBox="0 0 100 100">
+                      <defs>
+                        <radialGradient id="oxygen-gradient-f" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                          <stop offset="0%" stop-color="#ff0000" />
+                          <stop offset="100%" stop-color="#990000" />
+                        </radialGradient>
+                      </defs>
+                      <!-- Heart path -->
+                      <path class="heart-path" d="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" 
+                            fill="url(#oxygen-gradient-f)" />
+                      
+                      <!-- Oxygen circulation animation -->
+                      <circle class="oxygen-particle" r="2" fill="#ffffff" opacity="0.7">
+                        <animateMotion dur="3s" repeatCount="indefinite" path="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" />
+                      </circle>
+                      <circle class="oxygen-particle" r="2" fill="#ffffff" opacity="0.7">
+                        <animateMotion dur="3s" begin="0.5s" repeatCount="indefinite" path="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" />
+                      </circle>
+                      <circle class="oxygen-particle" r="2" fill="#ffffff" opacity="0.7">
+                        <animateMotion dur="3s" begin="1s" repeatCount="indefinite" path="M50,30 C55,20 70,20 80,32 C90,43 90,60 80,70 C70,80 60,85 50,95 C40,85 30,80 20,70 C10,60 10,43 20,32 C30,20 45,20 50,30 Z" />
+                      </circle>
+                    </svg>
+                    <span class="heart-label">O₂ Consumption</span>
+                    <div class="heart-rate" id="heart-rate-f">-- BPM</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="findings-section">
+        <h2>What We've Learned</h2>
+        <p>Our visualization reveals several important insights about human physiology during exercise:</p>
+        
+        <div class="finding">
+            <h3>1. Gender Differences</h3>
+            <p>Males consistently show higher oxygen consumption at all speeds, with the difference becoming
+            more pronounced at higher intensities. This stems from physiological differences including muscle mass,
+            heart size, and hemoglobin levels.</p>
+        </div>
+        
+        <div class="finding">
+            <h3>2. Speed Impact</h3>
+            <p>As treadmill speed increases, oxygen consumption rises in a predictable pattern for both sexes.
+            However, the rate of increase varies, with most subjects showing a more efficient oxygen economy
+            at moderate speeds (around 6-8) compared to higher speeds.</p>
+        </div>
+        
+        <div class="finding">
+            <h3>3. Individual Variations</h3>
+            <p>While we see clear patterns between genders, there's significant individual variation within each group.
+            Factors like age, training status, and body composition all contribute to how efficiently someone
+            utilizes oxygen during exercise.</p>
+        </div>
+        
+        <div class="takeaway">
+            <h3>Key Takeaway</h3>
+            <p>Understanding your personal oxygen consumption at different exercise intensities can help you
+            optimize your training program. By working at specific speeds relative to your VO2 capability,
+            you can target different energy systems and improve both endurance and performance.</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>VO2 In Motion - Created for Data Visualization Final Project</p>
+    </footer>
 </body>
 </html>
