@@ -23,6 +23,7 @@ let heartMan = null;
 let heartWoman = null;
 let heartContainerMan = null;
 let heartContainerWoman = null;
+const treadmillElements = document.querySelectorAll('.treadmill');
 
 // Fix the updateSelectionText function
 function updateSelectionText() {
@@ -177,6 +178,20 @@ function enhancedApplyCombinedFilter(sex) {
         console.error("Error applying filter:", error);
     }
 }
+
+function updateTreadmillSpeed(speed) {
+    treadmillElements.forEach(treadmill => {
+        treadmill.classList.remove('speed-5', 'speed-6', 'speed-7', 'speed-8', 'speed-9');
+        if (speed) {
+            treadmill.classList.add(`speed-${speed}`);
+        }
+    });
+
+    const speedFactor = speed ? 5 / speed : 1;
+    runnerMan.style.animationDuration = `${speedFactor}s`;
+    runnerWoman.style.animationDuration = `${speedFactor}s`;
+}
+
 
 // Fixed enhancedRunnerAnimation function
 function enhancedRunnerAnimation() {
@@ -367,6 +382,9 @@ function enhancedSpeedButtonListeners() {
                 }
                 
                 enhancedApplyCombinedFilter(selectedSex);
+
+                const speed = Number(button.getAttribute('data-speed'));
+                updateTreadmillSpeed(speed);
             });
         });
     } catch (error) {
@@ -503,6 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(function() {
                         enhancedBuildChart();
                         enhancedRunnerAnimation();
+                        updateTreadmillSpeed(5);
                     }, 100);
                 } else {
                     console.error("Failed to load data");
