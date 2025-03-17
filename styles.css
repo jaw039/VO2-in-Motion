@@ -569,3 +569,44 @@ footer {
     }
 }
 
+/* Customize the slider appearance */
+#speed-slider {
+    width: 80%;
+    appearance: none;
+    height: 8px;
+    background: #ddd;
+    border-radius: 5px;
+    outline: none;
+    opacity: 0.8;
+    transition: 0.3s;
+}
+
+/* Add a hover effect */
+#speed-slider:hover {
+    opacity: 1;
+}
+
+/* Customize the slider thumb */
+#speed-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+#speed-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+/* Speed value display */
+#speed-value {
+    font-weight: bold;
+    color: #333;
+    font-size: 18px;
+}

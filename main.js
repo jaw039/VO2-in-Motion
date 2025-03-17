@@ -192,7 +192,18 @@ function updateTreadmillSpeed(speed) {
     runnerWoman.style.animationDuration = `${speedFactor}s`;
 }
 
-
+function enhancedSpeedButtonListeners() {
+    try {
+        const speedSlider = document.getElementById('speed-slider');
+        if (!speedSlider) {
+            console.error("Speed slider not found");
+            return;
+        }
+        setupSpeedSlider();
+    } catch (error) {
+        console.error("Error setting up speed button listeners:", error);
+    }
+}
 // Fixed enhancedRunnerAnimation function
 function enhancedRunnerAnimation() {
     try {
@@ -352,69 +363,47 @@ function enhancedSexButtonListeners() {
     }
 }
 
-// Fix for the speed button selection issue
-function enhancedSpeedButtonListeners() {
+function setupSpeedSlider() {
     try {
-        // Use the correct selector for speed buttons
-        const buttons = document.querySelectorAll('#buttonsSpeed button[data-speed]');
+        const speedSlider = document.getElementById('speed-slider');
+        const speedValue = document.getElementById('speed-value');
         
-        if (buttons.length === 0) {
-            // Try alternative selector if the first one doesn't work
-            const altButtons = document.querySelectorAll('button[data-speed]');
-            if (altButtons.length === 0) {
-                console.error("Speed buttons not found");
-                return;
-            }
-            buttons = altButtons;
+        if (!speedSlider || !speedValue) {
+            console.error("Speed slider or value display not found");
+            return;
         }
         
-        console.log("Found speed buttons:", buttons.length);
+        // Initialize with the current slider value
+        selectedSpeed = parseInt(speedSlider.value);
+        speedValue.textContent = selectedSpeed;
         
-        // First, remove existing event listeners by cloning and replacing
-        buttons.forEach(button => {
-            const newButton = button.cloneNode(true);
-            button.parentNode.replaceChild(newButton, button);
-            
-            newButton.addEventListener('click', function() {
-                console.log("Speed button clicked:", newButton.getAttribute('data-speed'));
-                
-                // Get all buttons again to ensure we have the current reference
-                const allButtons = document.querySelectorAll('button[data-speed]');
-                
-                // Clear active class from ALL buttons
-                allButtons.forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                
-                // If clicking the same button, toggle it off
-                if (selectedSpeed === Number(newButton.getAttribute('data-speed'))) {
-                    selectedSpeed = null;
-                    console.log("Speed deselected");
-                } else {
-                    selectedSpeed = Number(newButton.getAttribute('data-speed')); 
-                    // Only add active class to the clicked button
-                    newButton.classList.add('active');
-                    console.log("Speed selected:", selectedSpeed);
-                }
-                
-                // Update the current selection text
-                updateSelectionText();
-                
-                // Apply the filter
-                enhancedApplyCombinedFilter(selectedSex);
-                
-                // Update the treadmill animation speed
-                if (typeof updateTreadmillSpeed === 'function') {
-                    updateTreadmillSpeed(selectedSpeed);
-                }
-            });
+        // Add event listener for slider changes
+        speedSlider.addEventListener('input', function() {
+            // Update the displayed value while dragging
+            speedValue.textContent = this.value;
         });
         
-        console.log("Speed button listeners set up successfully");
+        speedSlider.addEventListener('change', function() {
+            // When slider is released, update the selected speed
+            selectedSpeed = parseInt(this.value);
+            speedValue.textContent = selectedSpeed;
+            
+            // Update the current selection text
+            updateSelectionText();
+            
+            // Apply the filter with the new speed
+            enhancedApplyCombinedFilter(selectedSex);
+            
+            // Update the treadmill animation speed
+            updateTreadmillSpeed(selectedSpeed);
+        });
+        
+        console.log("Speed slider set up successfully");
     } catch (error) {
-        console.error("Error setting up speed button listeners:", error);
+        console.error("Error setting up speed slider:", error);
     }
 }
+
 
 // Add this new function to set up basic UI elements before data loads
 function setupBasicUI() {
@@ -914,21 +903,25 @@ function enhancedBuildChart() {
         // Process and display the data with smoother lines
         processAndDisplaySmootherGroups(svg, xScale, yScale, width, marginRight, marginTop);
 
-        // Define and append the brush with improved styling
-        const brush = d3.brushX()
-            .extent([[marginLeft, marginTop], [width - marginRight, height - marginBottom]])
-            .on("end", brushed);
+        // FIX: Create a new brush group and ensure it's properly initialized
+        const brushG = svg.append("g")
+        .attr("class", "brush");
 
-        svg.append("g")
-            .attr("class", "brush")
-            .call(brush);
         
-        // Style the brush with improved styling
+        // Define the brush function with a proper handler
+        const brush = d3.brushX()
+        .extent([[marginLeft, marginTop], [width - marginRight, height - marginBottom]])
+        .on("end", brushed);
+        
+        // Apply the brush to the group
+        brushG.call(brush);
+        
+        // Style the brush selections
         svg.selectAll(".selection")
-            .attr("fill", "#3498db")
-            .attr("fill-opacity", 0.15)
-            .attr("stroke", "#2980b9")
-            .attr("stroke-width", 1.5);
+        .attr("fill", "#3498db")
+        .attr("fill-opacity", 0.15)
+        .attr("stroke", "#2980b9")
+        .attr("stroke-width", 1.5);
 
         // Add tooltip for interactive data exploration with improved styling
         const tooltip = d3.select("body").append("div")
@@ -1048,96 +1041,99 @@ function enhancedBuildChart() {
                     .duration(300)
                     .style("opacity", 0);
             });
+            function brushed(event) {
+    // Check if selection exists (user dragged) or if it was just a click (selection is null)
+    if (event.selection) {
+        const [x0, x1] = event.selection.map(xScale.invert);
         
-        function brushed(event) {
-            const selection = event.selection;
-            if (selection) {
-                const [x0, x1] = selection.map(xScale.invert);
-                
-                // Get data within the selected time range
-                const filtered = filteredData.filter(d => d.time >= x0 && d.time <= x1);
-                
-                // Calculate averages based on selected sex filter
-                if (selectedSex === 'Both') {
-                    // Calculate overall average VO2
-                    const averageVO2 = d3.mean(filtered, d => d.VO2);
-                    document.getElementById('average-vo2-value').textContent = 
-                        !isNaN(averageVO2) ? averageVO2.toFixed(2) : "N/A";
-                    
-                    // Calculate male average
-                    const maleFiltered = filtered.filter(d => d.Sex === '0');
-                    const maleAverageVO2 = d3.mean(maleFiltered, d => d.VO2);
-                    document.getElementById('male-vo2-value').textContent = 
-                        !isNaN(maleAverageVO2) ? maleAverageVO2.toFixed(2) : "N/A";
-                    
-                    // Calculate female average
-                    const femaleFiltered = filtered.filter(d => d.Sex === '1');
-                    const femaleAverageVO2 = d3.mean(femaleFiltered, d => d.VO2);
-                    document.getElementById('female-vo2-value').textContent = 
-                        !isNaN(femaleAverageVO2) ? femaleAverageVO2.toFixed(2) : "N/A";
-                    
-                    // Show all average displays
-                    document.getElementById('overall-average-container').style.display = 'block';
-                    document.getElementById('male-average-container').style.display = 'block';
-                    document.getElementById('female-average-container').style.display = 'block';
-                } 
-                else if (selectedSex === '0') {
-                    // Only show male average
-                    const maleAverageVO2 = d3.mean(filtered, d => d.VO2);
-                    document.getElementById('male-vo2-value').textContent = 
-                        !isNaN(maleAverageVO2) ? maleAverageVO2.toFixed(2) : "N/A";
-                    
-                    // Hide other displays
-                    document.getElementById('overall-average-container').style.display = 'none';
-                    document.getElementById('male-average-container').style.display = 'block';
-                    document.getElementById('female-average-container').style.display = 'none';
-                }
-                else if (selectedSex === '1') {
-                    // Only show female average
-                    const femaleAverageVO2 = d3.mean(filtered, d => d.VO2);
-                    document.getElementById('female-vo2-value').textContent = 
-                        !isNaN(femaleAverageVO2) ? femaleAverageVO2.toFixed(2) : "N/A";
-                    
-                    // Hide other displays
-                    document.getElementById('overall-average-container').style.display = 'none';
-                    document.getElementById('male-average-container').style.display = 'none';
-                    document.getElementById('female-average-container').style.display = 'block';
-                }
-                
-                // Highlight the brushed region with improved styling
-                svg.selectAll(".highlighted-region").remove();
-                svg.append("rect")
-                    .attr("class", "highlighted-region")
-                    .attr("x", selection[0])
-                    .attr("y", marginTop)
-                    .attr("width", selection[1] - selection[0])
-                    .attr("height", height - marginTop - marginBottom)
-                    .attr("fill", "#ffeaa7") // Soft yellow fill
-                    .attr("opacity", 0.25)
-                    .attr("rx", 4)
-                    .attr("ry", 4)
-                    .lower(); // Put behind other elements
-                    
-                // Add label showing the time range selected
-                svg.selectAll(".selection-label").remove();
-                svg.append("text")
-                    .attr("class", "selection-label")
-                    .attr("x", (selection[0] + selection[1]) / 2)
-                    .attr("y", marginTop + 16)
-                    .attr("text-anchor", "middle")
-                    .attr("font-size", "11px")
-                    .attr("fill", "#666")
-                    .text(`Selected: ${Math.round(x0)}s - ${Math.round(x1)}s`);
-            } else {
-                // If no selection, reset values
-                document.getElementById('average-vo2-value').textContent = "N/A";
-                document.getElementById('male-vo2-value').textContent = "N/A";
-                document.getElementById('female-vo2-value').textContent = "N/A";
-                
-                // Remove highlighted region
-                svg.selectAll(".highlighted-region").remove();
-                svg.selectAll(".selection-label").remove();
-            }
+        // Get data within the selected time range
+        const filtered = filteredData.filter(d => d.time >= x0 && d.time <= x1);
+        
+        // Calculate averages based on selected sex filter
+        if (selectedSex === 'Both') {
+            // Calculate overall average VO2
+            const averageVO2 = d3.mean(filtered, d => d.VO2);
+            document.getElementById('average-vo2-value').textContent = 
+                !isNaN(averageVO2) ? averageVO2.toFixed(2) : "N/A";
+            
+            // Calculate male average
+            const maleFiltered = filtered.filter(d => d.Sex === '0');
+            const maleAverageVO2 = d3.mean(maleFiltered, d => d.VO2);
+            document.getElementById('male-vo2-value').textContent = 
+                !isNaN(maleAverageVO2) ? maleAverageVO2.toFixed(2) : "N/A";
+            
+            // Calculate female average
+            const femaleFiltered = filtered.filter(d => d.Sex === '1');
+            const femaleAverageVO2 = d3.mean(femaleFiltered, d => d.VO2);
+            document.getElementById('female-vo2-value').textContent = 
+                !isNaN(femaleAverageVO2) ? femaleAverageVO2.toFixed(2) : "N/A";
+            
+            // Show all average displays
+            document.getElementById('overall-average-container').style.display = 'block';
+            document.getElementById('male-average-container').style.display = 'block';
+            document.getElementById('female-average-container').style.display = 'block';
+        } 
+        else if (selectedSex === '0') {
+            // Only show male average
+            const maleAverageVO2 = d3.mean(filtered, d => d.VO2);
+            document.getElementById('male-vo2-value').textContent = 
+                !isNaN(maleAverageVO2) ? maleAverageVO2.toFixed(2) : "N/A";
+            
+            // Hide other displays
+            document.getElementById('overall-average-container').style.display = 'none';
+            document.getElementById('male-average-container').style.display = 'block';
+            document.getElementById('female-average-container').style.display = 'none';
+        }
+        else if (selectedSex === '1') {
+            // Only show female average
+            const femaleAverageVO2 = d3.mean(filtered, d => d.VO2);
+            document.getElementById('female-vo2-value').textContent = 
+                !isNaN(femaleAverageVO2) ? femaleAverageVO2.toFixed(2) : "N/A";
+            
+            // Hide other displays
+            document.getElementById('overall-average-container').style.display = 'none';
+            document.getElementById('male-average-container').style.display = 'none';
+            document.getElementById('female-average-container').style.display = 'block';
+        }
+        
+        // Highlight the brushed region with improved styling
+        svg.selectAll(".highlighted-region").remove();
+        svg.append("rect")
+            .attr("class", "highlighted-region")
+            .attr("x", event.selection[0])  // Use event.selection instead of selection
+            .attr("y", marginTop)
+            .attr("width", event.selection[1] - event.selection[0])  // Use event.selection
+            .attr("height", height - marginTop - marginBottom)
+            .attr("fill", "#ffeaa7") // Soft yellow fill
+            .attr("opacity", 0.25)
+            .attr("rx", 4)
+            .attr("ry", 4)
+            .lower(); // Put behind other elements
+            
+        // Add label showing the time range selected
+        svg.selectAll(".selection-label").remove();
+        svg.append("text")
+            .attr("class", "selection-label")
+            .attr("x", (event.selection[0] + event.selection[1]) / 2)  // Use event.selection
+            .attr("y", marginTop + 16)
+            .attr("text-anchor", "middle")
+            .attr("font-size", "11px")
+            .attr("fill", "#666")
+            .text(`Selected: ${Math.round(x0)}s - ${Math.round(x1)}s`);
+    } else {
+        // If user clicked without dragging, clear the brush
+        svg.select(".brush").call(brush.move, null);
+        
+        // Remove highlighted region and labels
+        svg.selectAll(".highlighted-region").remove();
+        svg.selectAll(".selection-label").remove();
+        
+        // Reset values to N/A
+        const avgElements = document.querySelectorAll('[id$="-vo2-value"]');
+        avgElements.forEach(el => {
+            el.textContent = "N/A";
+        });
+    }
         }
     } catch (error) {
         console.error("Error building chart:", error);

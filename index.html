@@ -84,13 +84,8 @@
             
             <div class="filter-group">
                 <h3>Choose Treadmill Speed</h3>
-                <div id="buttonsSpeed" class="button-group">
-                    <button data-speed="5" class="filter-button">Speed 5</button>
-                    <button data-speed="6" class="filter-button">Speed 6</button>
-                    <button data-speed="7" class="filter-button">Speed 7</button>
-                    <button data-speed="8" class="filter-button">Speed 8</button>
-                    <button data-speed="9" class="filter-button">Speed 9</button>
-                </div>
+                <input type="range" id="speed-slider" min="5" max="16" step="1" value="5">
+                <p>Speed: <span id="speed-value">5</span></p>
             </div>
             
             <div class="current-selection">
