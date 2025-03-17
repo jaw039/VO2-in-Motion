@@ -605,7 +605,7 @@ async function loadData() {
         try {
             // Try to load real data
             loadingIndicator.textContent = 'Loading demographic data...';
-            subjectInfo = await d3.csv('subject-info.csv', function(row) {
+            subjectInfo = await d3.csv('subject-info-cleaned.csv', function(row) {
                 return {
                     ID: +row.ID,
                     Sex: row.Sex
@@ -613,7 +613,7 @@ async function loadData() {
             });
             
             loadingIndicator.textContent = 'Loading measurement data...';
-            measureData = await d3.csv('test_measure.csv', function(row) {
+            measureData = await d3.csv('test_measure-cleaned.csv', function(row) {
                 return {
                     time: +row.time,
                     Speed: +row.Speed,
