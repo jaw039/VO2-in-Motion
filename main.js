@@ -352,41 +352,65 @@ function enhancedSexButtonListeners() {
     }
 }
 
-// Enhanced event listeners for speed filter buttons
+// Fix for the speed button selection issue
 function enhancedSpeedButtonListeners() {
     try {
-        const buttons = document.querySelectorAll('button[data-speed]');
+        // Use the correct selector for speed buttons
+        const buttons = document.querySelectorAll('#buttonsSpeed button[data-speed]');
         
         if (buttons.length === 0) {
-            console.error("Speed buttons not found");
-            return;
+            // Try alternative selector if the first one doesn't work
+            const altButtons = document.querySelectorAll('button[data-speed]');
+            if (altButtons.length === 0) {
+                console.error("Speed buttons not found");
+                return;
+            }
+            buttons = altButtons;
         }
         
-        // Clear previous event listeners if any
+        console.log("Found speed buttons:", buttons.length);
+        
+        // First, remove existing event listeners by cloning and replacing
         buttons.forEach(button => {
             const newButton = button.cloneNode(true);
             button.parentNode.replaceChild(newButton, button);
             
             newButton.addEventListener('click', function() {
-                // Clear active class from all buttons
-                buttons.forEach(btn => {
+                console.log("Speed button clicked:", newButton.getAttribute('data-speed'));
+                
+                // Get all buttons again to ensure we have the current reference
+                const allButtons = document.querySelectorAll('button[data-speed]');
+                
+                // Clear active class from ALL buttons
+                allButtons.forEach(btn => {
                     btn.classList.remove('active');
                 });
                 
                 // If clicking the same button, toggle it off
                 if (selectedSpeed === Number(newButton.getAttribute('data-speed'))) {
                     selectedSpeed = null;
+                    console.log("Speed deselected");
                 } else {
                     selectedSpeed = Number(newButton.getAttribute('data-speed')); 
-                    newButton.classList.add('active'); 
+                    // Only add active class to the clicked button
+                    newButton.classList.add('active');
+                    console.log("Speed selected:", selectedSpeed);
                 }
                 
+                // Update the current selection text
+                updateSelectionText();
+                
+                // Apply the filter
                 enhancedApplyCombinedFilter(selectedSex);
-
-                const speed = Number(button.getAttribute('data-speed'));
-                updateTreadmillSpeed(speed);
+                
+                // Update the treadmill animation speed
+                if (typeof updateTreadmillSpeed === 'function') {
+                    updateTreadmillSpeed(selectedSpeed);
+                }
             });
         });
+        
+        console.log("Speed button listeners set up successfully");
     } catch (error) {
         console.error("Error setting up speed button listeners:", error);
     }
@@ -733,7 +757,7 @@ function calculateAveragesByTime(dataToAverage) {
     }
 }
 
-// Enhanced buildChart function with improved styling
+// Fixed enhancedBuildChart function that doesn't add scatter points
 function enhancedBuildChart() {
     // Check if we have data
     if (!filteredData || filteredData.length === 0) {
@@ -881,51 +905,6 @@ function enhancedBuildChart() {
             .style("font-size", "14px")
             .style("max-width", "200px")
             .style("z-index", "10");
-            
-        // Add interactive points that show exact values on hover
-        const groups = d3.group(filteredData, function(d) { return d.Sex; });
-        groups.forEach(function(groupData, groupKey) {
-            // Sample points to avoid overcrowding (show every 10th point)
-            const sampledPoints = groupData.filter(function(d, i) { return i % 10 === 0; });
-            
-            svg.selectAll("circle.group-" + groupKey)
-                .data(sampledPoints)
-                .enter()
-                .append("circle")
-                .attr("class", "group-" + groupKey)
-                .attr("cx", function(d) { return xScale(d.time); })
-                .attr("cy", function(d) { return yScale(d.VO2); })
-                .attr("r", 3)
-                .attr("fill", groupKey === '0' ? "#3498db" : "#e84393")
-                .attr("opacity", 0.5)
-                .on("mouseover", function(event, d) {
-                    d3.select(this)
-                        .attr("r", 5)
-                        .attr("opacity", 1);
-                        
-                    tooltip.transition()
-                        .duration(200)
-                        .style("opacity", 0.9);
-                        
-                    tooltip.html(
-                        "<strong>Time:</strong> " + d.time + "s<br/>" +
-                        "<strong>Speed:</strong> " + d.Speed + "<br/>" +
-                        "<strong>VO₂:</strong> " + d.VO2.toFixed(2) + "<br/>" +
-                        "<strong>Sex:</strong> " + (d.Sex === '0' ? 'Male' : 'Female')
-                    )
-                        .style("left", (event.pageX + 10) + "px")
-                        .style("top", (event.pageY - 28) + "px");
-                })
-                .on("mouseout", function() {
-                    d3.select(this)
-                        .attr("r", 3)
-                        .attr("opacity", 0.5);
-                        
-                    tooltip.transition()
-                        .duration(500)
-                        .style("opacity", 0);
-                });
-        });
         
         function brushed(event) {
             const selection = event.selection;
@@ -939,45 +918,67 @@ function enhancedBuildChart() {
                 if (selectedSex === 'Both') {
                     // Calculate overall average VO2
                     const averageVO2 = d3.mean(filtered, function(d) { return d.VO2; });
-                    document.getElementById('average-vo2-value').textContent = 
-                        !isNaN(averageVO2) ? averageVO2.toFixed(2) : "N/A";
+                    const avgElement = document.getElementById('average-vo2-value');
+                    if (avgElement) {
+                        avgElement.textContent = !isNaN(averageVO2) ? averageVO2.toFixed(2) : "N/A";
+                    }
                     
                     // Calculate male average
                     const maleAverageVO2 = d3.mean(filtered.filter(function(d) { return d.Sex === '0'; }), function(d) { return d.VO2; });
-                    document.getElementById('male-vo2-value').textContent = 
-                        !isNaN(maleAverageVO2) ? maleAverageVO2.toFixed(2) : "N/A";
+                    const maleAvgElement = document.getElementById('male-vo2-value');
+                    if (maleAvgElement) {
+                        maleAvgElement.textContent = !isNaN(maleAverageVO2) ? maleAverageVO2.toFixed(2) : "N/A";
+                    }
                     
                     // Calculate female average
                     const femaleAverageVO2 = d3.mean(filtered.filter(function(d) { return d.Sex === '1'; }), function(d) { return d.VO2; });
-                    document.getElementById('female-vo2-value').textContent = 
-                        !isNaN(femaleAverageVO2) ? femaleAverageVO2.toFixed(2) : "N/A";
+                    const femaleAvgElement = document.getElementById('female-vo2-value');
+                    if (femaleAvgElement) {
+                        femaleAvgElement.textContent = !isNaN(femaleAverageVO2) ? femaleAverageVO2.toFixed(2) : "N/A";
+                    }
                     
                     // Show all average displays
-                    document.getElementById('overall-average-container').style.display = 'block';
-                    document.getElementById('male-average-container').style.display = 'block';
-                    document.getElementById('female-average-container').style.display = 'block';
+                    const overallContainer = document.getElementById('overall-average-container');
+                    const maleContainer = document.getElementById('male-average-container');
+                    const femaleContainer = document.getElementById('female-average-container');
+                    
+                    if (overallContainer) overallContainer.style.display = 'block';
+                    if (maleContainer) maleContainer.style.display = 'block';
+                    if (femaleContainer) femaleContainer.style.display = 'block';
                 } 
                 else if (selectedSex === '0') {
                     // Only show male average
                     const maleAverageVO2 = d3.mean(filtered.filter(function(d) { return d.Sex === '0'; }), function(d) { return d.VO2; });
-                    document.getElementById('male-vo2-value').textContent = 
-                        !isNaN(maleAverageVO2) ? maleAverageVO2.toFixed(2) : "N/A";
+                    const maleAvgElement = document.getElementById('male-vo2-value');
+                    if (maleAvgElement) {
+                        maleAvgElement.textContent = !isNaN(maleAverageVO2) ? maleAverageVO2.toFixed(2) : "N/A";
+                    }
                     
                     // Hide other displays
-                    document.getElementById('overall-average-container').style.display = 'none';
-                    document.getElementById('male-average-container').style.display = 'block';
-                    document.getElementById('female-average-container').style.display = 'none';
+                    const overallContainer = document.getElementById('overall-average-container');
+                    const maleContainer = document.getElementById('male-average-container');
+                    const femaleContainer = document.getElementById('female-average-container');
+                    
+                    if (overallContainer) overallContainer.style.display = 'none';
+                    if (maleContainer) maleContainer.style.display = 'block';
+                    if (femaleContainer) femaleContainer.style.display = 'none';
                 }
                 else if (selectedSex === '1') {
                     // Only show female average
                     const femaleAverageVO2 = d3.mean(filtered.filter(function(d) { return d.Sex === '1'; }), function(d) { return d.VO2; });
-                    document.getElementById('female-vo2-value').textContent = 
-                        !isNaN(femaleAverageVO2) ? femaleAverageVO2.toFixed(2) : "N/A";
+                    const femaleAvgElement = document.getElementById('female-vo2-value');
+                    if (femaleAvgElement) {
+                        femaleAvgElement.textContent = !isNaN(femaleAverageVO2) ? femaleAverageVO2.toFixed(2) : "N/A";
+                    }
                     
                     // Hide other displays
-                    document.getElementById('overall-average-container').style.display = 'none';
-                    document.getElementById('male-average-container').style.display = 'none';
-                    document.getElementById('female-average-container').style.display = 'block';
+                    const overallContainer = document.getElementById('overall-average-container');
+                    const maleContainer = document.getElementById('male-average-container');
+                    const femaleContainer = document.getElementById('female-average-container');
+                    
+                    if (overallContainer) overallContainer.style.display = 'none';
+                    if (maleContainer) maleContainer.style.display = 'none';
+                    if (femaleContainer) femaleContainer.style.display = 'block';
                 }
                 
                 // Highlight the brushed region with a different background
@@ -993,9 +994,13 @@ function enhancedBuildChart() {
                     .lower(); // Put behind other elements
             } else {
                 // If no selection, reset values
-                document.getElementById('average-vo2-value').textContent = "N/A";
-                document.getElementById('male-vo2-value').textContent = "N/A";
-                document.getElementById('female-vo2-value').textContent = "N/A";
+                const avgElement = document.getElementById('average-vo2-value');
+                const maleAvgElement = document.getElementById('male-vo2-value');
+                const femaleAvgElement = document.getElementById('female-vo2-value');
+                
+                if (avgElement) avgElement.textContent = "N/A";
+                if (maleAvgElement) maleAvgElement.textContent = "N/A";
+                if (femaleAvgElement) femaleAvgElement.textContent = "N/A";
                 
                 // Remove highlighted region
                 svg.selectAll(".highlighted-region").remove();
@@ -1007,6 +1012,43 @@ function enhancedBuildChart() {
 }
 
 // New function for displaying smoother line groups
+// This file contains only the essential functions needed to fix the graph
+// Replace these in your main.js file
+
+// Improved smoothing helper function
+function smoothDataPoints(data) {
+    if (data.length < 5) return data;
+    
+    const windowSize = Math.min(10, Math.ceil(data.length / 20));
+    const result = [];
+    
+    for (let i = 0; i < data.length; i++) {
+        const start = Math.max(0, i - windowSize);
+        const end = Math.min(data.length - 1, i + windowSize);
+        
+        let sum = 0;
+        let count = 0;
+        
+        for (let j = start; j <= end; j++) {
+            // Weight points closer to the center more heavily
+            const weight = 1 - Math.abs(i - j) / (windowSize + 1);
+            sum += data[j].VO2 * weight;
+            count += weight;
+        }
+        
+        result.push({
+            time: data[i].time,
+            VO2: sum / count,
+            HR: data[i].HR,
+            Sex: data[i].Sex,
+            Speed: data[i].Speed
+        });
+    }
+    
+    return result;
+}
+
+// Fixed version of processAndDisplaySmootherGroups function
 function processAndDisplaySmootherGroups(svg, xScale, yScale, width, marginRight, marginTop) {
     try {
         // Remove previous legends to ensure they're updated correctly
@@ -1017,12 +1059,9 @@ function processAndDisplaySmootherGroups(svg, xScale, yScale, width, marginRight
             .attr("class", "legend")
             .attr("transform", "translate(" + (width - marginRight - 150) + ", " + marginTop + ")");
 
-        // Group data by Sex - limit data points for better performance
+        // Group data by Sex
         const groups = d3.group(filteredData, function(d) { return d.Sex; });
         let yOffset = 0; // For legend positioning
-        
-        // Process fewer data points for smoother rendering
-        const MAX_POINTS = 500; // Maximum number of points to render for performance
         
         groups.forEach(function(groupData, groupKey) {
             // Check if there's any data to show for this group
@@ -1034,49 +1073,61 @@ function processAndDisplaySmootherGroups(svg, xScale, yScale, width, marginRight
 
                 // Skip if no data after filtering
                 if (groupData.length === 0) return;
-
-                // Downsample large datasets
-                if (groupData.length > MAX_POINTS) {
-                    const skipFactor = Math.ceil(groupData.length / MAX_POINTS);
-                    groupData = groupData.filter((d, i) => i % skipFactor === 0);
-                }
-
-                // Sort data by time for proper line rendering
-                groupData.sort(function(a, b) { return a.time - b.time; });
                 
+                // Sort data by time for proper line rendering
+                groupData.sort((a, b) => a.time - b.time);
+                
+                // Remove duplicates at same time point by grouping and averaging
+                const timeGroupMap = new Map();
+                groupData.forEach(d => {
+                    const timeKey = Math.round(d.time);
+                    if (!timeGroupMap.has(timeKey)) {
+                        timeGroupMap.set(timeKey, []);
+                    }
+                    timeGroupMap.get(timeKey).push(d);
+                });
+                
+                const dedupedData = [];
+                timeGroupMap.forEach((group, timeKey) => {
+                    const avgVO2 = d3.mean(group, d => d.VO2);
+                    dedupedData.push({
+                        time: +timeKey,
+                        VO2: avgVO2,
+                        Sex: group[0].Sex,
+                        Speed: group[0].Speed,
+                        HR: d3.mean(group, d => d.HR)
+                    });
+                });
+                
+                // Sort again after deduplication
+                dedupedData.sort((a, b) => a.time - b.time);
+                
+                // Apply smoothing
+                const smoothedData = smoothDataPoints(dedupedData);
+
                 // Define a smoother line generator
                 const line = d3.line()
-                    .x(function(d) { return xScale(d.time); })
-                    .y(function(d) { return yScale(d.VO2); })
-                    .curve(d3.curveMonotoneX); // This curve type creates smoother transitions
+                    .x(d => xScale(d.time))
+                    .y(d => yScale(d.VO2))
+                    .curve(d3.curveMonotoneX); // This creates smoother transitions
 
                 // Draw line with transition for animation
                 const path = svg.append('path')
-                    .datum(groupData)
+                    .datum(smoothedData)
                     .attr('fill', 'none')
                     .attr('stroke', groupKey === '0' ? '#3498db' : '#e84393')
                     .attr('stroke-width', 3)
                     .attr('d', line);
-                    
-                // Add line animation (optional)
-                const pathLength = path.node().getTotalLength();
-                path
-                    .attr("stroke-dasharray", pathLength)
-                    .attr("stroke-dashoffset", pathLength)
-                    .transition()
-                    .duration(1000)
-                    .attr("stroke-dashoffset", 0);
 
-                // Update legend with sex information
+                // Update legend
                 updateEnhancedLegend(legend, groupKey, 0, yOffset);
                 yOffset += 24; // Increment for next legend item
+                
+                // Add peak annotation for clearer visualization
+                if (selectedSpeed !== null) {
+                    const maxPoint = d3.max(smoothedData, d => d.VO2);
+                    const maxDataPoint = smoothedData.find(d => d.VO2 === maxPoint);
                     
-                // Add annotations for key points if showing a specific speed
-                if (selectedSpeed !== null && groupData.length > 0) {
-                    // Find maximum VO2 point to annotate
-                    const maxPoint = d3.max(groupData, function(d) { return d.VO2; });
-                    const maxDataPoint = groupData.find(function(d) { return d.VO2 === maxPoint; });
-                        
                     if (maxDataPoint) {
                         // Add circle at max point
                         svg.append("circle")
