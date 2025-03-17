@@ -55,7 +55,7 @@ li a:hover {
     margin: 0 0 10px;
     font-weight: 600;
     color: #2c3e50;
-    max-width: 900px;
+    max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -64,13 +64,16 @@ li a:hover {
     font-size: 14px;
     color: #666;
     margin: 0;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Introduction section */
 .intro-section {
-    max-width: 900px;
+    max-width: 1200px;
     margin: 30px auto;
-    padding: 20px;
+    padding: 30px;
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.08);
@@ -105,7 +108,7 @@ li a:hover {
 /* Dashboard layout */
 .dashboard {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
     gap: 20px;
     max-width: 1200px;
     margin: 0 auto 30px;
@@ -118,6 +121,8 @@ li a:hover {
     box-shadow: 0 2px 5px rgba(0,0,0,0.08);
     padding: 20px;
     margin-bottom: 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .panel h2 {
@@ -129,10 +134,17 @@ li a:hover {
 }
 
 /* Main chart */
+.main-chart {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 #line-graph {
     width: 100%;
     height: 500px;
-    margin-bottom: 20px;
+    margin: 0 auto;
 }
 
 /* Averages display */
@@ -141,6 +153,8 @@ li a:hover {
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
     margin-top: 20px;
+    width: 100%;
+    text-align: center;
 }
 
 #averages-display > div {
@@ -165,6 +179,8 @@ li a:hover {
 /* Filter buttons */
 .filter-group {
     margin-bottom: 30px;
+    width: 100%;
+    text-align: center;
 }
 
 .filter-group h3 {
@@ -175,7 +191,7 @@ li a:hover {
 
 .button-group {
     display: flex;
-    flex-wrap: wrap;
+    justify-content: center;
     gap: 10px;
 }
 
@@ -232,6 +248,9 @@ li a:hover {
     max-width: 1200px;
     margin: 0 auto 30px;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .runners-container {
@@ -239,6 +258,7 @@ li a:hover {
     flex-wrap: wrap;
     justify-content: center;
     gap: 40px;
+    width: 100%;
     margin-top: 20px;
 }
 
@@ -416,9 +436,9 @@ li a:hover {
 
 /* Findings section */
 .findings-section {
-    max-width: 900px;
+    max-width: 1200px;
     margin: 30px auto;
-    padding: 20px;
+    padding: 30px;
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.08);
@@ -609,4 +629,183 @@ footer {
     font-weight: bold;
     color: #333;
     font-size: 18px;
+}
+
+/* Add these styles at the end of your existing CSS */
+
+/* Brush styles for data selection */
+.brush .selection {
+  fill: rgba(52, 152, 219, 0.2);
+  stroke: #2980b9;
+  stroke-width: 2px;
+  shape-rendering: crispEdges;
+  pointer-events: all;
+}
+
+.brush .handle {
+  fill: #fff;
+  stroke: #2980b9;
+  stroke-width: 1.5px;
+  opacity: 1;
+  rx: 3;
+  ry: 3;
+}
+
+.brush .overlay {
+  cursor: crosshair;
+}
+
+.brush-stats {
+  font-size: 13px;
+  font-weight: 500;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 6px 10px;
+  border-radius: 5px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  border: 1px solid #eaeaea;
+  pointer-events: none;
+}
+
+.brush-stats-value {
+  font-weight: bold;
+  color: #333;
+}
+
+.stats-panel {
+  margin-top: 15px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #3498db;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.stats-panel h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+.stats-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.stats-label {
+  color: #555;
+}
+
+.stats-value {
+  font-weight: 500;
+  color: #333;
+}
+
+.male-stat {
+  color: #3498db;
+}
+
+.female-stat {
+  color: #e84393;
+}
+
+/* Pulse animation for the brush handles */
+@keyframes pulse-handle {
+  0% { stroke-opacity: 0.5; stroke-width: 1.5px; }
+  50% { stroke-opacity: 1; stroke-width: 2.5px; }
+  100% { stroke-opacity: 0.5; stroke-width: 1.5px; }
+}
+
+.brush .handle--custom {
+  animation: pulse-handle 2s infinite;
+}
+
+/* Layout improvements */
+.header h1,
+.intro-section,
+.dashboard,
+.animation,
+.findings-section {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Add padding to containers for consistent appearance */
+.intro-section,
+.findings-section {
+    padding: 30px;
+}
+
+/* Ensure all containers have consistent box-shadow */
+.intro-section,
+.panel,
+.animation,
+.findings-section {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    border-radius: 8px;
+}
+
+/* Adjust the dashboard grid to work better with the wider width */
+.dashboard {
+    grid-template-columns: 3fr 1fr;
+}
+
+/* Make sure the animation section has proper padding */
+.animation {
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+/* Make sure the header content stays centered within the wider container */
+.header h1,
+.citation {
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Fix the SVG to be properly centered */
+#line-graph {
+    width: 100%;
+    height: 500px;
+    margin: 0 auto;
+}
+
+/* Ensure consistent width for all UI panels */
+.panel {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Center controls within their panel */
+.filters {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Center the elements inside filter groups */
+.filter-group {
+    width: 100%;
+    text-align: center;
+}
+
+/* Center the button group */
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Make averages display more balanced */
+#averages-display {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+    width: 100%;
+    text-align: center;
 }
