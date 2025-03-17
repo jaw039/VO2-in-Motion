@@ -783,14 +783,34 @@ function enhancedBuildChart() {
             .attr("viewBox", [0, 0, width, height])
             .attr("style", "max-width: 100%; height: auto; -webkit-tap-highlight-color: transparent;");
 
-        // Add a light grid background
+        // Add a nicer background with gradient
+        const defs = svg.append("defs");
+        const bgGradient = defs.append("linearGradient")
+            .attr("id", "bg-gradient")
+            .attr("x1", "0%")
+            .attr("y1", "0%")
+            .attr("x2", "0%")
+            .attr("y2", "100%");
+            
+        bgGradient.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "#f9f9f9");
+            
+        bgGradient.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", "#f0f0f0");
+
+        // Add background with gradient and improved styling
         svg.append("rect")
             .attr("width", width - marginLeft - marginRight)
             .attr("height", height - marginTop - marginBottom)
             .attr("x", marginLeft)
             .attr("y", marginTop)
-            .attr("fill", "#f8f9fa")
-            .attr("rx", 8);
+            .attr("fill", "url(#bg-gradient)")
+            .attr("rx", 10)
+            .attr("ry", 10)
+            .attr("stroke", "#e0e0e0")
+            .attr("stroke-width", 1);
 
         // Define scales with appropriate domains - with error handling
         const xExtent = d3.extent(filteredData, d => d.time);
@@ -807,7 +827,7 @@ function enhancedBuildChart() {
             .domain([0, yMax * 1.1])
             .range([height - marginBottom, marginTop]);
             
-        // Adding grid lines for better readability
+        // Adding grid lines for better readability with improved styling
         svg.append('g')
             .attr('class', 'grid')
             .attr('transform', `translate(0, ${height - marginBottom})`)
@@ -816,8 +836,9 @@ function enhancedBuildChart() {
                     .tickSize(-(height - marginTop - marginBottom))
                     .tickFormat('')
             )
-            .attr('opacity', 0.1)
-            .attr('stroke', '#aaa');
+            .attr('opacity', 0.15)
+            .attr('stroke', '#555')
+            .attr('stroke-dasharray', '2,2');
         
         svg.append('g')
             .attr('class', 'grid')
@@ -827,29 +848,32 @@ function enhancedBuildChart() {
                     .tickSize(-(width - marginLeft - marginRight))
                     .tickFormat('')
             )
-            .attr('opacity', 0.1)
-            .attr('stroke', '#aaa');
+            .attr('opacity', 0.15)
+            .attr('stroke', '#555')
+            .attr('stroke-dasharray', '2,2');
 
         // Adding X and Y axis with improved styling
         const xAxis = d3.axisBottom(xScale)
             .tickPadding(10)
-            .tickSize(5);
+            .tickSize(5)
+            .ticks(10);
             
         const yAxis = d3.axisLeft(yScale)
             .tickPadding(10)
-            .tickSize(5);
+            .tickSize(5)
+            .ticks(10);
 
         svg.append('g')
             .attr('transform', `translate(0, ${height - marginBottom})`)
             .call(xAxis)
-            .attr('font-family', 'Segoe UI')
+            .attr('font-family', 'Segoe UI, sans-serif')
             .attr('font-size', '12px')
             .attr('color', '#555');
 
         svg.append('g')
             .attr('transform', `translate(${marginLeft}, 0)`)
             .call(yAxis)
-            .attr('font-family', 'Segoe UI')
+            .attr('font-family', 'Segoe UI, sans-serif')
             .attr('font-size', '12px')
             .attr('color', '#555');
 
@@ -860,23 +884,37 @@ function enhancedBuildChart() {
             .attr('text-anchor', 'middle')
             .attr('font-size', '14px')
             .attr('font-weight', '500')
-            .attr('fill', '#555')
+            .attr('fill', '#333')
             .text('Time (seconds)');
 
         svg.append('text')
             .attr('x', -height / 2)
-            .attr('y', 25)
+            .attr('y', 18)
             .attr('transform', 'rotate(-90)')
             .attr('text-anchor', 'middle')
             .attr('font-size', '14px')
             .attr('font-weight', '500')
-            .attr('fill', '#555')
+            .attr('fill', '#333')
             .text('VO₂ (mL/kg/min)');
+
+        // Add subtitle based on current selection
+        const speedText = selectedSpeed ? `at Speed ${selectedSpeed}` : 'across all speeds';
+        const genderText = selectedSex === 'Both' ? 'comparing males and females' : 
+                          (selectedSex === '0' ? 'for males' : 'for females');
+        
+        svg.append('text')
+            .attr('x', width / 2)
+            .attr('y', marginTop - 10)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '13px')
+            .attr('font-style', 'italic')
+            .attr('fill', '#555')
+            .text(`VO₂ consumption ${speedText} ${genderText}`);
 
         // Process and display the data with smoother lines
         processAndDisplaySmootherGroups(svg, xScale, yScale, width, marginRight, marginTop);
 
-        // Define and append the brush with styling
+        // Define and append the brush with improved styling
         const brush = d3.brushX()
             .extent([[marginLeft, marginTop], [width - marginRight, height - marginBottom]])
             .on("end", brushed);
@@ -885,26 +923,131 @@ function enhancedBuildChart() {
             .attr("class", "brush")
             .call(brush);
         
-        // Style the brush
+        // Style the brush with improved styling
         svg.selectAll(".selection")
             .attr("fill", "#3498db")
-            .attr("fill-opacity", 0.2)
-            .attr("stroke", "#3498db")
-            .attr("stroke-width", 1);
+            .attr("fill-opacity", 0.15)
+            .attr("stroke", "#2980b9")
+            .attr("stroke-width", 1.5);
 
-        // Add tooltip for interactive data exploration
+        // Add tooltip for interactive data exploration with improved styling
         const tooltip = d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("opacity", 0)
             .style("position", "absolute")
-            .style("background-color", "white")
-            .style("padding", "10px")
-            .style("border-radius", "5px")
-            .style("box-shadow", "0 2px 10px rgba(0,0,0,0.15)")
+            .style("background-color", "rgba(255, 255, 255, 0.95)")
+            .style("padding", "12px")
+            .style("border-radius", "8px")
+            .style("box-shadow", "0 3px 14px rgba(0,0,0,0.15), 0 1px 5px rgba(0,0,0,0.1)")
             .style("pointer-events", "none")
             .style("font-size", "14px")
-            .style("max-width", "200px")
-            .style("z-index", "10");
+            .style("font-family", "Segoe UI, sans-serif")
+            .style("max-width", "220px")
+            .style("z-index", "10")
+            .style("border", "1px solid #e0e0e0");
+        
+        // Add crosshair guide for hover
+        const verticalGuide = svg.append("line")
+            .attr("class", "guide")
+            .attr("stroke", "#555")
+            .attr("stroke-width", 1)
+            .attr("stroke-dasharray", "3,3")
+            .attr("opacity", 0);
+            
+        const horizontalGuide = svg.append("line")
+            .attr("class", "guide")
+            .attr("stroke", "#555")
+            .attr("stroke-width", 1)
+            .attr("stroke-dasharray", "3,3")
+            .attr("opacity", 0);
+            
+        // Add hover area for better interaction
+        svg.append("rect")
+            .attr("x", marginLeft)
+            .attr("y", marginTop)
+            .attr("width", width - marginLeft - marginRight)
+            .attr("height", height - marginTop - marginBottom)
+            .attr("fill", "transparent")
+            .on("mousemove", function(event) {
+                const [mouseX, mouseY] = d3.pointer(event);
+                
+                // Only show guides if within chart area
+                if (mouseX >= marginLeft && mouseX <= width - marginRight && 
+                    mouseY >= marginTop && mouseY <= height - marginBottom) {
+                    
+                    // Update crosshair position
+                    verticalGuide
+                        .attr("x1", mouseX)
+                        .attr("y1", marginTop)
+                        .attr("x2", mouseX)
+                        .attr("y2", height - marginBottom)
+                        .attr("opacity", 0.5);
+                        
+                    horizontalGuide
+                        .attr("x1", marginLeft)
+                        .attr("y1", mouseY)
+                        .attr("x2", width - marginRight)
+                        .attr("y2", mouseY)
+                        .attr("opacity", 0.5);
+                        
+                    // Get data at current position
+                    const timeValue = xScale.invert(mouseX);
+                    
+                    // Find closest data points
+                    let malePoint = null;
+                    let femalePoint = null;
+                    
+                    // Use cached data by sex
+                    const maleData = dataCache.male;
+                    const femaleData = dataCache.female;
+                    
+                    if (maleData && maleData.length > 0) {
+                        malePoint = maleData.reduce((closest, current) => {
+                            return Math.abs(current.time - timeValue) < Math.abs(closest.time - timeValue) ? current : closest;
+                        });
+                    }
+                    
+                    if (femaleData && femaleData.length > 0) {
+                        femalePoint = femaleData.reduce((closest, current) => {
+                            return Math.abs(current.time - timeValue) < Math.abs(closest.time - timeValue) ? current : closest;
+                        });
+                    }
+                    
+                    // Build tooltip content
+                    let tooltipContent = `<strong>Time:</strong> ${Math.round(timeValue)}s<br>`;
+                    
+                    if (selectedSex === '0' || selectedSex === 'Both') {
+                        tooltipContent += `<span style="color: #3498db;"><strong>Male VO₂:</strong> ${malePoint ? malePoint.VO2.toFixed(1) : 'N/A'}</span><br>`;
+                    }
+                    
+                    if (selectedSex === '1' || selectedSex === 'Both') {
+                        tooltipContent += `<span style="color: #e84393;"><strong>Female VO₂:</strong> ${femalePoint ? femalePoint.VO2.toFixed(1) : 'N/A'}</span>`;
+                    }
+                    
+                    if (selectedSex === 'Both' && malePoint && femalePoint) {
+                        const difference = malePoint.VO2 - femalePoint.VO2;
+                        tooltipContent += `<br><span style="color: #555;"><strong>Difference:</strong> ${Math.abs(difference).toFixed(1)} (${difference > 0 ? 'M>F' : 'F>M'})</span>`;
+                    }
+                    
+                    // Show tooltip
+                    tooltip.transition()
+                        .duration(100)
+                        .style("opacity", 0.95);
+                        
+                    tooltip.html(tooltipContent)
+                        .style("left", (event.pageX + 15) + "px")
+                        .style("top", (event.pageY - 30) + "px");
+                }
+            })
+            .on("mouseout", function() {
+                // Hide guides and tooltip
+                verticalGuide.attr("opacity", 0);
+                horizontalGuide.attr("opacity", 0);
+                
+                tooltip.transition()
+                    .duration(300)
+                    .style("opacity", 0);
+            });
         
         function brushed(event) {
             const selection = event.selection;
@@ -912,76 +1055,56 @@ function enhancedBuildChart() {
                 const [x0, x1] = selection.map(xScale.invert);
                 
                 // Get data within the selected time range
-                const filtered = filteredData.filter(function(d) { return d.time >= x0 && d.time <= x1; });
+                const filtered = filteredData.filter(d => d.time >= x0 && d.time <= x1);
                 
                 // Calculate averages based on selected sex filter
                 if (selectedSex === 'Both') {
                     // Calculate overall average VO2
-                    const averageVO2 = d3.mean(filtered, function(d) { return d.VO2; });
-                    const avgElement = document.getElementById('average-vo2-value');
-                    if (avgElement) {
-                        avgElement.textContent = !isNaN(averageVO2) ? averageVO2.toFixed(2) : "N/A";
-                    }
+                    const averageVO2 = d3.mean(filtered, d => d.VO2);
+                    document.getElementById('average-vo2-value').textContent = 
+                        !isNaN(averageVO2) ? averageVO2.toFixed(2) : "N/A";
                     
                     // Calculate male average
-                    const maleAverageVO2 = d3.mean(filtered.filter(function(d) { return d.Sex === '0'; }), function(d) { return d.VO2; });
-                    const maleAvgElement = document.getElementById('male-vo2-value');
-                    if (maleAvgElement) {
-                        maleAvgElement.textContent = !isNaN(maleAverageVO2) ? maleAverageVO2.toFixed(2) : "N/A";
-                    }
+                    const maleFiltered = filtered.filter(d => d.Sex === '0');
+                    const maleAverageVO2 = d3.mean(maleFiltered, d => d.VO2);
+                    document.getElementById('male-vo2-value').textContent = 
+                        !isNaN(maleAverageVO2) ? maleAverageVO2.toFixed(2) : "N/A";
                     
                     // Calculate female average
-                    const femaleAverageVO2 = d3.mean(filtered.filter(function(d) { return d.Sex === '1'; }), function(d) { return d.VO2; });
-                    const femaleAvgElement = document.getElementById('female-vo2-value');
-                    if (femaleAvgElement) {
-                        femaleAvgElement.textContent = !isNaN(femaleAverageVO2) ? femaleAverageVO2.toFixed(2) : "N/A";
-                    }
+                    const femaleFiltered = filtered.filter(d => d.Sex === '1');
+                    const femaleAverageVO2 = d3.mean(femaleFiltered, d => d.VO2);
+                    document.getElementById('female-vo2-value').textContent = 
+                        !isNaN(femaleAverageVO2) ? femaleAverageVO2.toFixed(2) : "N/A";
                     
                     // Show all average displays
-                    const overallContainer = document.getElementById('overall-average-container');
-                    const maleContainer = document.getElementById('male-average-container');
-                    const femaleContainer = document.getElementById('female-average-container');
-                    
-                    if (overallContainer) overallContainer.style.display = 'block';
-                    if (maleContainer) maleContainer.style.display = 'block';
-                    if (femaleContainer) femaleContainer.style.display = 'block';
+                    document.getElementById('overall-average-container').style.display = 'block';
+                    document.getElementById('male-average-container').style.display = 'block';
+                    document.getElementById('female-average-container').style.display = 'block';
                 } 
                 else if (selectedSex === '0') {
                     // Only show male average
-                    const maleAverageVO2 = d3.mean(filtered.filter(function(d) { return d.Sex === '0'; }), function(d) { return d.VO2; });
-                    const maleAvgElement = document.getElementById('male-vo2-value');
-                    if (maleAvgElement) {
-                        maleAvgElement.textContent = !isNaN(maleAverageVO2) ? maleAverageVO2.toFixed(2) : "N/A";
-                    }
+                    const maleAverageVO2 = d3.mean(filtered, d => d.VO2);
+                    document.getElementById('male-vo2-value').textContent = 
+                        !isNaN(maleAverageVO2) ? maleAverageVO2.toFixed(2) : "N/A";
                     
                     // Hide other displays
-                    const overallContainer = document.getElementById('overall-average-container');
-                    const maleContainer = document.getElementById('male-average-container');
-                    const femaleContainer = document.getElementById('female-average-container');
-                    
-                    if (overallContainer) overallContainer.style.display = 'none';
-                    if (maleContainer) maleContainer.style.display = 'block';
-                    if (femaleContainer) femaleContainer.style.display = 'none';
+                    document.getElementById('overall-average-container').style.display = 'none';
+                    document.getElementById('male-average-container').style.display = 'block';
+                    document.getElementById('female-average-container').style.display = 'none';
                 }
                 else if (selectedSex === '1') {
                     // Only show female average
-                    const femaleAverageVO2 = d3.mean(filtered.filter(function(d) { return d.Sex === '1'; }), function(d) { return d.VO2; });
-                    const femaleAvgElement = document.getElementById('female-vo2-value');
-                    if (femaleAvgElement) {
-                        femaleAvgElement.textContent = !isNaN(femaleAverageVO2) ? femaleAverageVO2.toFixed(2) : "N/A";
-                    }
+                    const femaleAverageVO2 = d3.mean(filtered, d => d.VO2);
+                    document.getElementById('female-vo2-value').textContent = 
+                        !isNaN(femaleAverageVO2) ? femaleAverageVO2.toFixed(2) : "N/A";
                     
                     // Hide other displays
-                    const overallContainer = document.getElementById('overall-average-container');
-                    const maleContainer = document.getElementById('male-average-container');
-                    const femaleContainer = document.getElementById('female-average-container');
-                    
-                    if (overallContainer) overallContainer.style.display = 'none';
-                    if (maleContainer) maleContainer.style.display = 'none';
-                    if (femaleContainer) femaleContainer.style.display = 'block';
+                    document.getElementById('overall-average-container').style.display = 'none';
+                    document.getElementById('male-average-container').style.display = 'none';
+                    document.getElementById('female-average-container').style.display = 'block';
                 }
                 
-                // Highlight the brushed region with a different background
+                // Highlight the brushed region with improved styling
                 svg.selectAll(".highlighted-region").remove();
                 svg.append("rect")
                     .attr("class", "highlighted-region")
@@ -990,20 +1113,30 @@ function enhancedBuildChart() {
                     .attr("width", selection[1] - selection[0])
                     .attr("height", height - marginTop - marginBottom)
                     .attr("fill", "#ffeaa7") // Soft yellow fill
-                    .attr("opacity", 0.3)
+                    .attr("opacity", 0.25)
+                    .attr("rx", 4)
+                    .attr("ry", 4)
                     .lower(); // Put behind other elements
+                    
+                // Add label showing the time range selected
+                svg.selectAll(".selection-label").remove();
+                svg.append("text")
+                    .attr("class", "selection-label")
+                    .attr("x", (selection[0] + selection[1]) / 2)
+                    .attr("y", marginTop + 16)
+                    .attr("text-anchor", "middle")
+                    .attr("font-size", "11px")
+                    .attr("fill", "#666")
+                    .text(`Selected: ${Math.round(x0)}s - ${Math.round(x1)}s`);
             } else {
                 // If no selection, reset values
-                const avgElement = document.getElementById('average-vo2-value');
-                const maleAvgElement = document.getElementById('male-vo2-value');
-                const femaleAvgElement = document.getElementById('female-vo2-value');
-                
-                if (avgElement) avgElement.textContent = "N/A";
-                if (maleAvgElement) maleAvgElement.textContent = "N/A";
-                if (femaleAvgElement) femaleAvgElement.textContent = "N/A";
+                document.getElementById('average-vo2-value').textContent = "N/A";
+                document.getElementById('male-vo2-value').textContent = "N/A";
+                document.getElementById('female-vo2-value').textContent = "N/A";
                 
                 // Remove highlighted region
                 svg.selectAll(".highlighted-region").remove();
+                svg.selectAll(".selection-label").remove();
             }
         }
     } catch (error) {
@@ -1054,15 +1187,29 @@ function processAndDisplaySmootherGroups(svg, xScale, yScale, width, marginRight
         // Remove previous legends to ensure they're updated correctly
         svg.selectAll(".legend").remove();
 
-        // Set up the legend
+        // Set up the legend with better styling
         const legend = svg.append("g")
             .attr("class", "legend")
             .attr("transform", "translate(" + (width - marginRight - 150) + ", " + marginTop + ")");
 
+        // Add a more professional title/caption to the legend
+        legend.append("text")
+            .attr("x", 0)
+            .attr("y", -10)
+            .attr("font-size", "12px")
+            .attr("font-weight", "bold")
+            .attr("fill", "#333")
+            .text("Gender Comparison");
+
         // Group data by Sex
         const groups = d3.group(filteredData, function(d) { return d.Sex; });
-        let yOffset = 0; // For legend positioning
+        let yOffset = 10; // Start legend items a bit lower with space for the title
         
+        // Store male and female data for comparison
+        let maleData = null;
+        let femaleData = null;
+        
+        // First pass to process and get the data
         groups.forEach(function(groupData, groupKey) {
             // Check if there's any data to show for this group
             if (groupData.length > 0) {
@@ -1102,8 +1249,15 @@ function processAndDisplaySmootherGroups(svg, xScale, yScale, width, marginRight
                 // Sort again after deduplication
                 dedupedData.sort((a, b) => a.time - b.time);
                 
-                // Apply smoothing
-                const smoothedData = smoothDataPoints(dedupedData);
+                // Apply smoothing with a larger window for extra smoothness
+                const smoothedData = smoothDataPoints(dedupedData, 12);
+
+                // Store data by gender for comparison
+                if (groupKey === '0') {
+                    maleData = smoothedData;
+                } else {
+                    femaleData = smoothedData;
+                }
 
                 // Define a smoother line generator
                 const line = d3.line()
@@ -1111,44 +1265,164 @@ function processAndDisplaySmootherGroups(svg, xScale, yScale, width, marginRight
                     .y(d => yScale(d.VO2))
                     .curve(d3.curveMonotoneX); // This creates smoother transitions
 
-                // Draw line with transition for animation
+                // Add a subtle drop shadow for the path
+                const defs = svg.append("defs");
+                const filter = defs.append("filter")
+                    .attr("id", `shadow-${groupKey}`)
+                    .attr("width", "200%")
+                    .attr("height", "200%");
+                    
+                filter.append("feDropShadow")
+                    .attr("dx", 0)
+                    .attr("dy", 1)
+                    .attr("stdDeviation", 2)
+                    .attr("flood-opacity", 0.3);
+
+                // Add subtle gradient for the line
+                const gradientId = `line-gradient-${groupKey}`;
+                const gradient = defs.append("linearGradient")
+                    .attr("id", gradientId)
+                    .attr("gradientUnits", "userSpaceOnUse")
+                    .attr("x1", 0)
+                    .attr("y1", 0)
+                    .attr("x2", 0)
+                    .attr("y2", 1);
+                    
+                if (groupKey === '0') { // Male
+                    gradient.append("stop")
+                        .attr("offset", "0%")
+                        .attr("stop-color", "#2980b9");
+                    gradient.append("stop")
+                        .attr("offset", "100%")
+                        .attr("stop-color", "#3498db");
+                } else { // Female
+                    gradient.append("stop")
+                        .attr("offset", "0%")
+                        .attr("stop-color", "#c2185b");
+                    gradient.append("stop")
+                        .attr("offset", "100%")
+                        .attr("stop-color", "#e84393");
+                }
+
+                // Draw line with improved styling and transition
                 const path = svg.append('path')
                     .datum(smoothedData)
                     .attr('fill', 'none')
                     .attr('stroke', groupKey === '0' ? '#3498db' : '#e84393')
-                    .attr('stroke-width', 3)
+                    .attr('stroke-width', 4)  // Thicker line
+                    .attr('stroke-linejoin', 'round')
+                    .attr('stroke-linecap', 'round')
+                    .attr('filter', `url(#shadow-${groupKey})`) // Apply shadow
                     .attr('d', line);
+                    
+                // Add line animation
+                const pathLength = path.node().getTotalLength();
+                path
+                    .attr("stroke-dasharray", pathLength)
+                    .attr("stroke-dashoffset", pathLength)
+                    .transition()
+                    .duration(1000)
+                    .ease(d3.easeLinear)
+                    .attr("stroke-dashoffset", 0);
 
-                // Update legend
+                // Update legend with enhanced styling
                 updateEnhancedLegend(legend, groupKey, 0, yOffset);
-                yOffset += 24; // Increment for next legend item
-                
-                // Add peak annotation for clearer visualization
+                yOffset += 30; // More space between legend items
+
+                // Add peak annotation with improved styling
                 if (selectedSpeed !== null) {
                     const maxPoint = d3.max(smoothedData, d => d.VO2);
                     const maxDataPoint = smoothedData.find(d => d.VO2 === maxPoint);
                     
                     if (maxDataPoint) {
-                        // Add circle at max point
+                        // Add circle at max point with pulse animation
                         svg.append("circle")
                             .attr("cx", xScale(maxDataPoint.time))
                             .attr("cy", yScale(maxDataPoint.VO2))
-                            .attr("r", 5)
+                            .attr("r", 6)
                             .attr("fill", groupKey === '0' ? "#3498db" : "#e84393")
-                            .attr("stroke", "white");
+                            .attr("stroke", "white")
+                            .attr("stroke-width", 2)
+                            .attr("class", "pulse-circle");
                             
-                        // Add annotation text
+                        // Add annotation text with improved styling
                         svg.append("text")
-                            .attr("x", xScale(maxDataPoint.time) + 10)
-                            .attr("y", yScale(maxDataPoint.VO2) - 10)
+                            .attr("x", xScale(maxDataPoint.time) + 12)
+                            .attr("y", yScale(maxDataPoint.VO2) - 12)
                             .attr("text-anchor", "start")
                             .attr("font-size", "12px")
+                            .attr("font-weight", "bold")
                             .attr("fill", groupKey === '0' ? "#3498db" : "#e84393")
-                            .text("Max: " + maxDataPoint.VO2.toFixed(1));
+                            .attr("stroke", "white")
+                            .attr("stroke-width", 0.5)
+                            .attr("paint-order", "stroke")
+                            .text(`Peak: ${maxDataPoint.VO2.toFixed(1)}`);
+
+                        // Add an average line
+                        const avgVO2 = d3.mean(smoothedData, d => d.VO2);
+                        
+                        svg.append("line")
+                            .attr("x1", xScale(smoothedData[0].time))
+                            .attr("y1", yScale(avgVO2))
+                            .attr("x2", xScale(smoothedData[smoothedData.length - 1].time))
+                            .attr("y2", yScale(avgVO2))
+                            .attr("stroke", groupKey === '0' ? "#3498db" : "#e84393")
+                            .attr("stroke-width", 1.5)
+                            .attr("stroke-dasharray", "5,5")
+                            .attr("opacity", 0.6);
+                        
+                        // Add average label
+                        svg.append("text")
+                            .attr("x", xScale(smoothedData[0].time) + 10)
+                            .attr("y", yScale(avgVO2) - 8)
+                            .attr("text-anchor", "start")
+                            .attr("font-size", "11px")
+                            .attr("fill", groupKey === '0' ? "#3498db" : "#e84393")
+                            .attr("opacity", 0.8)
+                            .text(`Avg: ${avgVO2.toFixed(1)}`);
                     }
                 }
             }
         });
+        
+        // Add gender difference visualization if we have both male and female data
+        if (maleData && femaleData && maleData.length > 0 && femaleData.length > 0 && selectedSex === 'Both') {
+            // Calculate gender difference over time
+            // Make sure both datasets have the same time points
+            const maleTimeMap = new Map();
+            maleData.forEach(d => maleTimeMap.set(d.time, d.VO2));
+            
+            // Only use time points present in both datasets
+            const comparisonData = femaleData.filter(d => maleTimeMap.has(d.time))
+                .map(d => ({
+                    time: d.time,
+                    maleFemaleGap: maleTimeMap.get(d.time) - d.VO2
+                }));
+            
+            if (comparisonData.length > 0) {
+                // Calculate average gender difference
+                const avgGap = d3.mean(comparisonData, d => d.maleFemaleGap);
+                
+                // Add a note about the gender difference
+                svg.append("text")
+                    .attr("x", width - marginRight - 150)
+                    .attr("y", marginTop + yOffset + 15)
+                    .attr("text-anchor", "start")
+                    .attr("font-size", "12px")
+                    .attr("fill", "#555")
+                    .text(`Average M/F difference: ${Math.abs(avgGap).toFixed(1)} mL/kg/min`);
+                
+                // Add an explanation of what this means
+                svg.append("text")
+                    .attr("x", width - marginRight - 150)
+                    .attr("y", marginTop + yOffset + 35)
+                    .attr("text-anchor", "start")
+                    .attr("font-size", "11px")
+                    .attr("fill", "#777")
+                    .text(`Males use ${avgGap > 0 ? 'more' : 'less'} oxygen on average`);
+            }
+        }
+        
     } catch (error) {
         console.error("Error processing and displaying groups:", error);
     }
@@ -1157,27 +1431,37 @@ function processAndDisplaySmootherGroups(svg, xScale, yScale, width, marginRight
 // Enhanced function for updating the legend
 function updateEnhancedLegend(legend, groupKey, xOffset, yOffset) {
     try {
-        const color = groupKey === '0' ? '#3498db' : '#e84393'; // More refined colors
+        // Use improved colors with a professional feel
+        const colors = { 
+            '0': { fill: '#3498db', stroke: '#2980b9' },  // Male - refined blue
+            '1': { fill: '#e84393', stroke: '#c2185b' }   // Female - refined pink
+        };
+        
+        const color = colors[groupKey].fill;
+        const strokeColor = colors[groupKey].stroke;
         const textLabel = groupKey === '0' ? 'Male' : 'Female';
 
-        // Add colored rectangle for the legend
+        // Add rounded rectangle with stroke for the legend item
         legend.append("rect")
             .attr("x", xOffset)
             .attr("y", yOffset)
-            .attr("width", 18)
-            .attr("height", 18)
-            .attr("rx", 3) // Rounded corners
-            .style("fill", color);
+            .attr("width", 20)
+            .attr("height", 20)
+            .attr("rx", 5) // Rounded corners
+            .style("fill", color)
+            .style("stroke", strokeColor)
+            .style("stroke-width", 1.5);
 
-        // Add text label next to the rectangle
+        // Add text label next to the rectangle with improved styling
         legend.append("text")
-            .attr("x", xOffset + 24)
-            .attr("y", yOffset + 14)
+            .attr("x", xOffset + 26)
+            .attr("y", yOffset + 15)
             .text(textLabel)
             .style("font-size", "14px")
             .style("font-weight", "500")
             .style("text-anchor", "start")
-            .style("alignment-baseline", "middle");
+            .style("alignment-baseline", "middle")
+            .style("fill", "#333");
     } catch (error) {
         console.error("Error updating legend:", error);
     }
