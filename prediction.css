@@ -1,0 +1,52 @@
+.prediction-section {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+#prediction-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#prediction-form label {
+    font-weight: bold;
+}
+
+#prediction-form input,
+#prediction-form select {
+    padding: 5px;
+    width: 100%;
+}
+
+#prediction-results {
+    margin-top: 20px;
+}
+
+#prediction-results h3 {
+    margin-top: 0;
+}
+
+.advice {
+    font-style: italic;
+    color: #555;
+    margin-top: 10px;
+}
+
+#prediction-graph-container {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+#prediction-graph {
+    width: 100%;
+    height: 400px;
+}
