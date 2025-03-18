@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VO2 In Motion</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="exploration.css">
+    <link rel="stylesheet" href="prediction.css">
     <script src="./main.js" type="module" defer></script>
+    <script src="./exploration.js" type="module" defer></script>
+    <script src="./prediction.js" type="module" defer></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
@@ -167,6 +171,54 @@
                     <div class="heart-rate" id="heart-rate-f">-- BPM</div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="exploration-dashboard">
+        <h2>Interactive Data Exploration</h2>
+        <p>This graph shows the relationship between the selected Factor and all other metrics that are dependent on each other and play a key role during running for males and females. The trend line represents the average relationship.</p>
+        <div class="controls">
+            <label>Choose a Factor:</label>
+            <select id="factor">
+                <option value="VO2">VO2 (mL/kg/min)</option>
+                <option value="HR">Heart Rate (BPM)</option>
+                <option value="Speed">Speed (km/h)</option>
+                <option value="Age">Age (years)</option>
+                <option value="Weight">Weight (kg)</option>
+            </select>
+            <button id="generate-button">Generate</button>
+        </div>
+        <div id="dashboard-graphs"></div>
+    </div>
+
+    <div class="prediction-section">
+        <h2>Personalized Metrics Prediction</h2>
+        <form id="prediction-form">
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age" min="10" max="100" required>
+            <label for="weight">Weight (kg):</label>
+            <input type="number" id="weight" name="weight" min="30" max="150" required>
+            <label for="height">Height (cm):</label>
+            <input type="number" id="height" name="height" min="100" max="250" required>
+            <label for="speed">Speed (km/h):</label>
+            <input type="number" id="speed" name="speed" min="5" max="16" required>
+            <label for="gender-pred">Gender:</label>
+            <select id="gender-pred" name="gender-pred">
+                <option value="0">Male</option>
+                <option value="1">Female</option>
+            </select>
+            <button type="submit">Predict</button>
+        </form>
+        <div id="prediction-graph-container">
+            <h3>Predicted Progress Over Time</h3>
+            <p>This graph shows how your VO2 and heart rate are predicted to change over 12 months as you improve your fitness. Each month represents a step in your fitness journey.</p>
+            <svg id="prediction-graph"></svg>
+        </div>
+        <div id="prediction-results">
+            <h3>Predicted Metrics</h3>
+            <p>VO2: <span id="predicted-vo2">N/A</span> mL/kg/min</p>
+            <p>Heart Rate: <span id="predicted-hr">N/A</span> BPM</p>
+            <p id="health-advice" class="advice"></p>
         </div>
     </div>
 
