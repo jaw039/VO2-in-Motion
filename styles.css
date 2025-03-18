@@ -649,10 +649,35 @@ footer {
   opacity: 1;
   rx: 3;
   ry: 3;
+  animation: pulse-handle 2s infinite;
 }
 
 .brush .overlay {
   cursor: crosshair;
+}
+
+/* Additional styles for the brush interface */
+.highlighted-region {
+  pointer-events: none;
+}
+
+.selection-label {
+  pointer-events: none;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Custom handle styling */
+.handle--custom {
+  fill: #3498db;
+  stroke: #2980b9;
+  stroke-width: 1.5px;
+}
+
+/* Animation for the brush handles */
+@keyframes pulse-handle {
+  0% { stroke-opacity: 0.5; stroke-width: 1.5px; }
+  50% { stroke-opacity: 1; stroke-width: 2.5px; }
+  100% { stroke-opacity: 0.5; stroke-width: 1.5px; }
 }
 
 .brush-stats {
@@ -671,55 +696,21 @@ footer {
   color: #333;
 }
 
-.stats-panel {
-  margin-top: 15px;
-  padding: 12px;
+/* Clear button styles */
+#clear-brush-button {
   background-color: #f8f9fa;
-  border-radius: 6px;
-  border-left: 3px solid #3498db;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-.stats-panel h4 {
-  margin-top: 0;
-  margin-bottom: 8px;
-  font-size: 14px;
-  color: #333;
-}
-
-.stats-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 4px;
-  font-size: 13px;
-}
-
-.stats-label {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 12px;
   color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.stats-value {
-  font-weight: 500;
-  color: #333;
-}
-
-.male-stat {
-  color: #3498db;
-}
-
-.female-stat {
-  color: #e84393;
-}
-
-/* Pulse animation for the brush handles */
-@keyframes pulse-handle {
-  0% { stroke-opacity: 0.5; stroke-width: 1.5px; }
-  50% { stroke-opacity: 1; stroke-width: 2.5px; }
-  100% { stroke-opacity: 0.5; stroke-width: 1.5px; }
-}
-
-.brush .handle--custom {
-  animation: pulse-handle 2s infinite;
+#clear-brush-button:hover {
+  background-color: #e2e6ea;
+  border-color: #dae0e5;
 }
 
 /* Layout improvements */

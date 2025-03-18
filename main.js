@@ -903,26 +903,6 @@ function enhancedBuildChart() {
         // Process and display the data with smoother lines
         processAndDisplaySmootherGroups(svg, xScale, yScale, width, marginRight, marginTop);
 
-        // FIX: Create a new brush group and ensure it's properly initialized
-        const brushG = svg.append("g")
-        .attr("class", "brush");
-
-        
-        // Define the brush function with a proper handler
-        const brush = d3.brushX()
-        .extent([[marginLeft, marginTop], [width - marginRight, height - marginBottom]])
-        .on("end", brushed);
-        
-        // Apply the brush to the group
-        brushG.call(brush);
-        
-        // Style the brush selections
-        svg.selectAll(".selection")
-        .attr("fill", "#3498db")
-        .attr("fill-opacity", 0.15)
-        .attr("stroke", "#2980b9")
-        .attr("stroke-width", 1.5);
-
         // Add tooltip for interactive data exploration with improved styling
         const tooltip = d3.select("body").append("div")
             .attr("class", "tooltip")
@@ -955,185 +935,213 @@ function enhancedBuildChart() {
             .attr("opacity", 0);
             
         // Add hover area for better interaction
-        svg.append("rect")
+        // IMPORTANT: Add pointer-events: none so it doesn't block the brush
+        const hoverArea = svg.append("rect")
+            .attr("class", "hover-area")
             .attr("x", marginLeft)
             .attr("y", marginTop)
             .attr("width", width - marginLeft - marginRight)
             .attr("height", height - marginTop - marginBottom)
             .attr("fill", "transparent")
-            .on("mousemove", function(event) {
-                const [mouseX, mouseY] = d3.pointer(event);
+            .style("pointer-events", "all"); // This allows events but doesn't block brush
+            
+        // Add event listeners to the hover area
+        hoverArea.on("mousemove", function(event) {
+            const [mouseX, mouseY] = d3.pointer(event);
+            
+            // Only show guides if within chart area
+            if (mouseX >= marginLeft && mouseX <= width - marginRight && 
+                mouseY >= marginTop && mouseY <= height - marginBottom) {
                 
-                // Only show guides if within chart area
-                if (mouseX >= marginLeft && mouseX <= width - marginRight && 
-                    mouseY >= marginTop && mouseY <= height - marginBottom) {
+                // Update crosshair position
+                verticalGuide
+                    .attr("x1", mouseX)
+                    .attr("y1", marginTop)
+                    .attr("x2", mouseX)
+                    .attr("y2", height - marginBottom)
+                    .attr("opacity", 0.5);
                     
-                    // Update crosshair position
-                    verticalGuide
-                        .attr("x1", mouseX)
-                        .attr("y1", marginTop)
-                        .attr("x2", mouseX)
-                        .attr("y2", height - marginBottom)
-                        .attr("opacity", 0.5);
-                        
-                    horizontalGuide
-                        .attr("x1", marginLeft)
-                        .attr("y1", mouseY)
-                        .attr("x2", width - marginRight)
-                        .attr("y2", mouseY)
-                        .attr("opacity", 0.5);
-                        
-                    // Get data at current position
-                    const timeValue = xScale.invert(mouseX);
+                horizontalGuide
+                    .attr("x1", marginLeft)
+                    .attr("y1", mouseY)
+                    .attr("x2", width - marginRight)
+                    .attr("y2", mouseY)
+                    .attr("opacity", 0.5);
                     
-                    // Find closest data points
-                    let malePoint = null;
-                    let femalePoint = null;
-                    
-                    // Use cached data by sex
-                    const maleData = dataCache.male;
-                    const femaleData = dataCache.female;
-                    
-                    if (maleData && maleData.length > 0) {
-                        malePoint = maleData.reduce((closest, current) => {
-                            return Math.abs(current.time - timeValue) < Math.abs(closest.time - timeValue) ? current : closest;
-                        });
-                    }
-                    
-                    if (femaleData && femaleData.length > 0) {
-                        femalePoint = femaleData.reduce((closest, current) => {
-                            return Math.abs(current.time - timeValue) < Math.abs(closest.time - timeValue) ? current : closest;
-                        });
-                    }
-                    
-                    // Build tooltip content
-                    let tooltipContent = `<strong>Time:</strong> ${Math.round(timeValue)}s<br>`;
-                    
-                    if (selectedSex === '0' || selectedSex === 'Both') {
-                        tooltipContent += `<span style="color: #3498db;"><strong>Male VO₂:</strong> ${malePoint ? malePoint.VO2.toFixed(1) : 'N/A'}</span><br>`;
-                    }
-                    
-                    if (selectedSex === '1' || selectedSex === 'Both') {
-                        tooltipContent += `<span style="color: #e84393;"><strong>Female VO₂:</strong> ${femalePoint ? femalePoint.VO2.toFixed(1) : 'N/A'}</span>`;
-                    }
-                    
-                    if (selectedSex === 'Both' && malePoint && femalePoint) {
-                        const difference = malePoint.VO2 - femalePoint.VO2;
-                        tooltipContent += `<br><span style="color: #555;"><strong>Difference:</strong> ${Math.abs(difference).toFixed(1)} (${difference > 0 ? 'M>F' : 'F>M'})</span>`;
-                    }
-                    
-                    // Show tooltip
-                    tooltip.transition()
-                        .duration(100)
-                        .style("opacity", 0.95);
-                        
-                    tooltip.html(tooltipContent)
-                        .style("left", (event.pageX + 15) + "px")
-                        .style("top", (event.pageY - 30) + "px");
+                // Get data at current position
+                const timeValue = xScale.invert(mouseX);
+                
+                // Find closest data points
+                let malePoint = null;
+                let femalePoint = null;
+                
+                // Use cached data by sex
+                const maleData = dataCache.male;
+                const femaleData = dataCache.female;
+                
+                if (maleData && maleData.length > 0) {
+                    malePoint = maleData.reduce((closest, current) => {
+                        return Math.abs(current.time - timeValue) < Math.abs(closest.time - timeValue) ? current : closest;
+                    });
                 }
-            })
-            .on("mouseout", function() {
-                // Hide guides and tooltip
-                verticalGuide.attr("opacity", 0);
-                horizontalGuide.attr("opacity", 0);
                 
+                if (femaleData && femaleData.length > 0) {
+                    femalePoint = femaleData.reduce((closest, current) => {
+                        return Math.abs(current.time - timeValue) < Math.abs(closest.time - timeValue) ? current : closest;
+                    });
+                }
+                
+                // Build tooltip content
+                let tooltipContent = `<strong>Time:</strong> ${Math.round(timeValue)}s<br>`;
+                
+                if (selectedSex === '0' || selectedSex === 'Both') {
+                    tooltipContent += `<span style="color: #3498db;"><strong>Male VO₂:</strong> ${malePoint ? malePoint.VO2.toFixed(1) : 'N/A'}</span><br>`;
+                }
+                
+                if (selectedSex === '1' || selectedSex === 'Both') {
+                    tooltipContent += `<span style="color: #e84393;"><strong>Female VO₂:</strong> ${femalePoint ? femalePoint.VO2.toFixed(1) : 'N/A'}</span>`;
+                }
+                
+                if (selectedSex === 'Both' && malePoint && femalePoint) {
+                    const difference = malePoint.VO2 - femalePoint.VO2;
+                    tooltipContent += `<br><span style="color: #555;"><strong>Difference:</strong> ${Math.abs(difference).toFixed(1)} (${difference > 0 ? 'M>F' : 'F>M'})</span>`;
+                }
+                
+                // Show tooltip
                 tooltip.transition()
-                    .duration(300)
-                    .style("opacity", 0);
-            });
-            function brushed(event) {
-    // Check if selection exists (user dragged) or if it was just a click (selection is null)
-    if (event.selection) {
-        const [x0, x1] = event.selection.map(xScale.invert);
-        
-        // Get data within the selected time range
-        const filtered = filteredData.filter(d => d.time >= x0 && d.time <= x1);
-        
-        // Calculate averages based on selected sex filter
-        if (selectedSex === 'Both') {
-            // Calculate overall average VO2
-            const averageVO2 = d3.mean(filtered, d => d.VO2);
-            document.getElementById('average-vo2-value').textContent = 
-                !isNaN(averageVO2) ? averageVO2.toFixed(2) : "N/A";
-            
-            // Calculate male average
-            const maleFiltered = filtered.filter(d => d.Sex === '0');
-            const maleAverageVO2 = d3.mean(maleFiltered, d => d.VO2);
-            document.getElementById('male-vo2-value').textContent = 
-                !isNaN(maleAverageVO2) ? maleAverageVO2.toFixed(2) : "N/A";
-            
-            // Calculate female average
-            const femaleFiltered = filtered.filter(d => d.Sex === '1');
-            const femaleAverageVO2 = d3.mean(femaleFiltered, d => d.VO2);
-            document.getElementById('female-vo2-value').textContent = 
-                !isNaN(femaleAverageVO2) ? femaleAverageVO2.toFixed(2) : "N/A";
-            
-            // Show all average displays
-            document.getElementById('overall-average-container').style.display = 'block';
-            document.getElementById('male-average-container').style.display = 'block';
-            document.getElementById('female-average-container').style.display = 'block';
-        } 
-        else if (selectedSex === '0') {
-            // Only show male average
-            const maleAverageVO2 = d3.mean(filtered, d => d.VO2);
-            document.getElementById('male-vo2-value').textContent = 
-                !isNaN(maleAverageVO2) ? maleAverageVO2.toFixed(2) : "N/A";
-            
-            // Hide other displays
-            document.getElementById('overall-average-container').style.display = 'none';
-            document.getElementById('male-average-container').style.display = 'block';
-            document.getElementById('female-average-container').style.display = 'none';
-        }
-        else if (selectedSex === '1') {
-            // Only show female average
-            const femaleAverageVO2 = d3.mean(filtered, d => d.VO2);
-            document.getElementById('female-vo2-value').textContent = 
-                !isNaN(femaleAverageVO2) ? femaleAverageVO2.toFixed(2) : "N/A";
-            
-            // Hide other displays
-            document.getElementById('overall-average-container').style.display = 'none';
-            document.getElementById('male-average-container').style.display = 'none';
-            document.getElementById('female-average-container').style.display = 'block';
-        }
-        
-        // Highlight the brushed region with improved styling
-        svg.selectAll(".highlighted-region").remove();
-        svg.append("rect")
-            .attr("class", "highlighted-region")
-            .attr("x", event.selection[0])  // Use event.selection instead of selection
-            .attr("y", marginTop)
-            .attr("width", event.selection[1] - event.selection[0])  // Use event.selection
-            .attr("height", height - marginTop - marginBottom)
-            .attr("fill", "#ffeaa7") // Soft yellow fill
-            .attr("opacity", 0.25)
-            .attr("rx", 4)
-            .attr("ry", 4)
-            .lower(); // Put behind other elements
-            
-        // Add label showing the time range selected
-        svg.selectAll(".selection-label").remove();
-        svg.append("text")
-            .attr("class", "selection-label")
-            .attr("x", (event.selection[0] + event.selection[1]) / 2)  // Use event.selection
-            .attr("y", marginTop + 16)
-            .attr("text-anchor", "middle")
-            .attr("font-size", "11px")
-            .attr("fill", "#666")
-            .text(`Selected: ${Math.round(x0)}s - ${Math.round(x1)}s`);
-    } else {
-        // If user clicked without dragging, clear the brush
-        svg.select(".brush").call(brush.move, null);
-        
-        // Remove highlighted region and labels
-        svg.selectAll(".highlighted-region").remove();
-        svg.selectAll(".selection-label").remove();
-        
-        // Reset values to N/A
-        const avgElements = document.querySelectorAll('[id$="-vo2-value"]');
-        avgElements.forEach(el => {
-            el.textContent = "N/A";
+                    .duration(100)
+                    .style("opacity", 0.95);
+                    
+                tooltip.html(tooltipContent)
+                    .style("left", (event.pageX + 15) + "px")
+                    .style("top", (event.pageY - 30) + "px");
+            }
         });
-    }
+        
+        hoverArea.on("mouseout", function() {
+            // Hide guides and tooltip
+            verticalGuide.attr("opacity", 0);
+            horizontalGuide.attr("opacity", 0);
+            
+            tooltip.transition()
+                .duration(300)
+                .style("opacity", 0);
+        });
+        
+        // NOW create the brush group AFTER the hover area
+        // This ensures the brush is on top in the SVG z-order
+        const brushG = svg.append("g")
+            .attr("class", "brush");
+
+        // Define the brush with correct extent and event handler
+        const brush = d3.brushX()
+            .extent([[marginLeft, marginTop], [width - marginRight, height - marginBottom]])
+            .on("end", brushed);
+
+        // Apply the brush to the group
+        brushG.call(brush);
+
+        // Style the brush selections for better visibility
+        svg.selectAll(".selection")
+            .attr("fill", "#3498db")
+            .attr("fill-opacity", 0.15)
+            .attr("stroke", "#2980b9")
+            .attr("stroke-width", 1.5);
+
+        // Define the brushed function to handle brush events
+        function brushed(event) {
+            // Check if selection exists (user dragged) or if it was just a click (selection is null)
+            if (event.selection) {
+                const [x0, x1] = event.selection.map(xScale.invert);
+                
+                // Get data within the selected time range
+                const filtered = filteredData.filter(d => d.time >= x0 && d.time <= x1);
+                
+                // Calculate averages based on selected sex filter
+                if (selectedSex === 'Both') {
+                    // Calculate overall average VO2
+                    const averageVO2 = d3.mean(filtered, d => d.VO2);
+                    document.getElementById('average-vo2-value').textContent = 
+                        !isNaN(averageVO2) ? averageVO2.toFixed(2) : "N/A";
+                    
+                    // Calculate male average
+                    const maleFiltered = filtered.filter(d => d.Sex === '0');
+                    const maleAverageVO2 = d3.mean(maleFiltered, d => d.VO2);
+                    document.getElementById('male-vo2-value').textContent = 
+                        !isNaN(maleAverageVO2) ? maleAverageVO2.toFixed(2) : "N/A";
+                    
+                    // Calculate female average
+                    const femaleFiltered = filtered.filter(d => d.Sex === '1');
+                    const femaleAverageVO2 = d3.mean(femaleFiltered, d => d.VO2);
+                    document.getElementById('female-vo2-value').textContent = 
+                        !isNaN(femaleAverageVO2) ? femaleAverageVO2.toFixed(2) : "N/A";
+                    
+                    // Show all average displays
+                    document.getElementById('overall-average-container').style.display = 'block';
+                    document.getElementById('male-average-container').style.display = 'block';
+                    document.getElementById('female-average-container').style.display = 'block';
+                } 
+                else if (selectedSex === '0') {
+                    // Only show male average
+                    const maleAverageVO2 = d3.mean(filtered, d => d.VO2);
+                    document.getElementById('male-vo2-value').textContent = 
+                        !isNaN(maleAverageVO2) ? maleAverageVO2.toFixed(2) : "N/A";
+                    
+                    // Hide other displays
+                    document.getElementById('overall-average-container').style.display = 'none';
+                    document.getElementById('male-average-container').style.display = 'block';
+                    document.getElementById('female-average-container').style.display = 'none';
+                }
+                else if (selectedSex === '1') {
+                    // Only show female average
+                    const femaleAverageVO2 = d3.mean(filtered, d => d.VO2);
+                    document.getElementById('female-vo2-value').textContent = 
+                        !isNaN(femaleAverageVO2) ? femaleAverageVO2.toFixed(2) : "N/A";
+                    
+                    // Hide other displays
+                    document.getElementById('overall-average-container').style.display = 'none';
+                    document.getElementById('male-average-container').style.display = 'none';
+                    document.getElementById('female-average-container').style.display = 'block';
+                }
+                
+                // Highlight the brushed region with improved styling
+                svg.selectAll(".highlighted-region").remove();
+                svg.append("rect")
+                    .attr("class", "highlighted-region")
+                    .attr("x", event.selection[0])
+                    .attr("y", marginTop)
+                    .attr("width", event.selection[1] - event.selection[0])
+                    .attr("height", height - marginTop - marginBottom)
+                    .attr("fill", "#ffeaa7") // Soft yellow fill
+                    .attr("opacity", 0.25)
+                    .attr("rx", 4)
+                    .attr("ry", 4)
+                    .lower(); // Put behind other elements
+                    
+                // Add label showing the time range selected
+                svg.selectAll(".selection-label").remove();
+                svg.append("text")
+                    .attr("class", "selection-label")
+                    .attr("x", (event.selection[0] + event.selection[1]) / 2)
+                    .attr("y", marginTop + 16)
+                    .attr("text-anchor", "middle")
+                    .attr("font-size", "11px")
+                    .attr("fill", "#666")
+                    .text(`Selected: ${Math.round(x0)}s - ${Math.round(x1)}s`);
+            } else {
+                // If user clicked without dragging, clear the brush
+                svg.select(".brush").call(brush.move, null);
+                
+                // Remove highlighted region and labels
+                svg.selectAll(".highlighted-region").remove();
+                svg.selectAll(".selection-label").remove();
+                
+                // Reset values to N/A
+                const avgElements = document.querySelectorAll('[id$="-vo2-value"]');
+                avgElements.forEach(el => {
+                    el.textContent = "N/A";
+                });
+            }
         }
     } catch (error) {
         console.error("Error building chart:", error);
